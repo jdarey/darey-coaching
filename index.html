@@ -1844,14 +1844,18 @@ body::after {
 // 3. Kopiujesz firebaseConfig
 // 4. Firestore Database → Create → Test mode
 // ================================================================
-const FIREBASE_CONFIG = {
-    apiKey: "WKLEJ_API_KEY",
-    authDomain: "TWOJ-PROJEKT.firebaseapp.com",
-    projectId: "TWOJ-PROJEKT-ID",
-    storageBucket: "TWOJ-PROJEKT.appspot.com",
-    messagingSenderId: "TWOJ_SENDER_ID",
-    appId: "TWOJ_APP_ID"
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyBNEcNFVu8vycBZjT-hzt-PihwwoIBhsOw",
+  authDomain: "darey-fc9af.firebaseapp.com",
+  projectId: "darey-fc9af",
+  storageBucket: "darey-fc9af.firebasestorage.app",
+  messagingSenderId: "282436645396",
+  appId: "1:282436645396:web:1834f4c69a18193476ad01",
+  measurementId: "G-KY76XQW055"
 };
+
 // ================================================================
 
 const ADMIN_PASSWORD = 'darey2700'; // ZMIEŃ TO HASŁO
@@ -2435,24 +2439,9 @@ document.addEventListener("visibilitychange", () => {
 
 
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyBNEcNFVu8vycBZjT-hzt-PihwwoIBhsOw",
-  authDomain: "darey-fc9af.firebaseapp.com",
-  projectId: "darey-fc9af",
-  storageBucket: "darey-fc9af.firebasestorage.app",
-  messagingSenderId: "282436645396",
-  appId: "1:282436645396:web:1834f4c69a18193476ad01",
-  measurementId: "G-KY76XQW055"
-};
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 
 </script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
 </body>
 </html>

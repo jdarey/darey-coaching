@@ -42,11 +42,12 @@ html {
     background: #000;
     color: var(--text);
     scroll-behavior: auto;
-    scrollbar-width: none;
+    scrollbar-width: 1px;
 }
 
 ::-webkit-scrollbar {
-    display: none;
+    display: absolute;
+
 }
 
 body {
@@ -4345,7 +4346,7 @@ function playClickSound() {
 
         const now = ctx.currentTime;
 
-        gain.gain.setValueAtTime(0.018, now);
+        gain.gain.setValueAtTime(0.118, now);
         gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.06);
 
         osc.start(now);

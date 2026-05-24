@@ -1363,27 +1363,6 @@ document.querySelectorAll("section").forEach(s => observer.observe(s));
 document.addEventListener("visibilitychange", () => {
     document.hidden ? setTitle("PAUSED | Darey Coaching") : setTitle(titleMap[currentSectionId] || baseTitle);
 });
-    // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyDTDgtwt59bSHXpE4ojC7bqFFR-ubzsZRU",
-  authDomain: "darey-coach.firebaseapp.com",
-  projectId: "darey-coach",
-  storageBucket: "darey-coach.firebasestorage.app",
-  messagingSenderId: "702863716810",
-  appId: "1:702863716810:web:fb2e676231dc2fb5a65f33",
-  measurementId: "G-3R161YGR6D"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 </script>
 </body>
 </html>

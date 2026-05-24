@@ -1865,14 +1865,10 @@ let db = null;
 let firebaseReady = false;
 
 try {
-    if (FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey !== "AIzaSyBNEcNFVu8vycBZjT-hzt-PihwwoIBhsOw") {
-        firebase.initializeApp(FIREBASE_CONFIG)
-        db = firebase.firestore();
-        firebaseReady = true;
-        console.log('[Firebase] Połączono z Firestore');
-    } else {
-        console.warn('[Firebase] Brak konfiguracji — opinie zbierane lokalnie. Dodaj FIREBASE_CONFIG.');
-    }
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    firebaseReady = true;
+    console.log('[Firebase] Połączono z Firestore');
 } catch (e) {
     console.error('[Firebase] Błąd inicjalizacji:', e);
 }

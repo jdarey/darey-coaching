@@ -3667,8 +3667,7 @@ function renderPublicTestimonials(options = {}) {
         approvedTestimonials.reduce((sum, t) => sum + (parseInt(t.rating) || 0), 0) / total
     ).toFixed(1);
 
-    const hours = approvedTestimonials.reduce((sum, t) => sum + (parseInt(t.hours) || 1), 0);
-
+const hours = approvedTestimonials.length * 2;
     document.getElementById("trustPlayers").textContent = total + "+";
     document.getElementById("trustRating").textContent = avg;
     document.getElementById("trustHours").textContent = hours + "+";

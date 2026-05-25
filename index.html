@@ -2771,6 +2771,10 @@ html.lenis body {
         transform: translateY(120px);
     }
 }
+#copyNotification {
+    will-change: transform, opacity;
+    transform-origin: center;
+}
 .admin-action-btn.reject:hover,
 .admin-action-btn.delete:hover {
     color: #ff6b6b;
@@ -2917,11 +2921,11 @@ html.lenis body {
             <div class="bento-grid">
                 <div class="bento-card card-spotlight col-span-2">
                     <div class="card-content">
-                        <h3>Doświadczenie ma znaczenie</h3>
+                        <h3>Doświadczenie</h3>
                         <p>
-                            Z ponad 8000 godzin na serwerach i setkami meczów przeciwko najlepszym na Faceit,
-                            wiem dokładnie, czego brakuje graczom, aby wejść na wyższy poziom.
-                            Nie uczę suchych teorii, uczę jak wygrywać rundy.
+                            Mam ponad 8000 godzin na serwerach i setki meczy przeciwko graczom na Faceit.
+                            Wiem z doświadczenia, czego brakuje graczom, aby wejść na wyższy level.
+                            Wszystko, czego uczę, opiera się na moim własnym doświadczeniu.
                         </p>
                     </div>
                 </div>
@@ -2975,13 +2979,13 @@ html.lenis body {
                         </div>
 
                         <p class="service-desc">
-                            Wysyłasz mi demo z trudnego meczu. Wskazuję Twoje błędy w decision makingu i ustawieniu.
+                            Wyślij swoje demo, a dokładnie przeanalizuję Twoją grę — pokażę błędy, które kosztują Cię rundy i pojedynki, oraz jak je skutecznie wyeliminować.
                         </p>
 
                         <ul class="features">
-                            <li>Szczegółowa ocena offline</li>
-                            <li>Notatki z timestampami</li>
-                            <li>Plan poprawy celności</li>
+                            <li>Dokładna analiza Twojej gry</li>
+                            <li>Film z omówieniem błędów</li>
+                            <li>Indywidualny plan poprawy</li>
                         </ul>
                     </div>
                 </div>
@@ -2989,18 +2993,18 @@ html.lenis body {
                 <div class="service-card card-spotlight premium-card">
                     <div class="card-content">
                         <div class="service-header">
-                            <h3>Live Pug 1v1</h3>
+                            <h3>Live Coaching</h3>
                             <span class="price">50 PLN</span>
                         </div>
 
                         <p class="service-desc">
-                            Współdzielenie ekranu na żywo. Korygowanie błędów z rundy na rundę. Najszybszy progres.
+                            Coaching na żywo podczas Twojej gry. Analiza sytuacji w czasie rzeczywistym, szybkie poprawki i feedback, który od razu przekłada się na lepsze wyniki.
                         </p>
 
                         <ul class="features">
-                            <li>Live feedback Discord</li>
-                            <li>Analiza w freezetime</li>
-                            <li>Podsumowanie po meczu</li>
+                            <li>Feedback na żywo</li>
+                            <li>Analiza rund w trakcie gry</li>
+                            <li>Podsumowanie po sesji</li>
                         </ul>
                     </div>
                 </div>
@@ -3013,13 +3017,14 @@ html.lenis body {
                         </div>
 
                         <p class="service-desc">
-                            Wchodzę na Wasz trening i pomagam w układaniu defaultów oraz komunikacji.
+                                Pomagam uporządkować grę zespołową — od komunikacji i ustawień po lepszy teamplay i podejmowanie decyzji podczas rund.
+                            
                         </p>
 
                         <ul class="features">
                             <li>Obecność na TS/Discord</li>
-                            <li>Struktura po stronie TT</li>
-                            <li>Poprawa rotacji CT</li>
+                            <li>Budowanie lepszego teamplayu</li>
+                            <li>Poprawa komunikacji i organizacji</li>
                         </ul>
                     </div>
                 </div>
@@ -3032,12 +3037,7 @@ html.lenis body {
         <div class="container">
             <div class="dash-badge">ZWERYFIKOWANE WYNIKI</div>
 
-            <h2 class="dash-title">Opinie, które brzmią jak progres</h2>
-
-            <p class="dash-subtitle">
-                Jedna wyróżniona opinia, elegancka lista poniżej i subtelny efekt 3D.
-                Minimalistycznie, premium i bez wizualnego chaosu.
-            </p>
+            <h2 class="dash-title">Opinie </h2>
 
             <div class="reviews-premium-shell" id="reviewsShell" style="display:none;">
                 <div id="featuredReview"></div>
@@ -3183,8 +3183,7 @@ html.lenis body {
             <h2>Gotowy na współpracę?</h2>
 
             <p>
-                Napisz do mnie na Discordzie. Pierwsze 3 osoby, które się zgłoszą,
-                otrzymają darmową analizę dema.
+                Odezwij się na Discordzie i zacznij pracować nad swoją grą z indywidualnym podejściem.
             </p>
 
             <div class="discord-tag" id="discordTag">
@@ -4788,17 +4787,65 @@ discordTag.addEventListener("click", async () => {
 
     playClickSound();
 
-    copyNotification.classList.add("show");
+    // Lekki premium click effect
+    gsap.timeline()
+        .to(discordTag, {
+            y: -2,
+            duration: 0.12,
+            ease: "power2.out"
+        })
+        .to(discordTag, {
+            y: 0,
+            duration: 0.18,
+            ease: "power2.inOut"
+        });
 
+    // Glow w kolorze strony (bez zmiany jakości ikonki)
     gsap.fromTo(
-        discordTag.querySelector("i"),
-        { scale: 1 },
-        { scale: 1.3, duration: 0.2, yoyo: true, repeat: 1 }
+        discordTag,
+        {
+            boxShadow: "0 0 0px rgba(255,255,255,0)"
+        },
+        {
+            boxShadow: "0 0 20px rgba(255,255,255,0.08)",
+            duration: 0.3,
+            repeat: 1,
+            yoyo: true,
+            ease: "power2.out"
+        }
     );
 
-    setTimeout(() => {
-        copyNotification.classList.remove("show");
-    }, 4000);
+    copyNotification.classList.add("show");
+
+// wejście
+gsap.fromTo(
+    copyNotification,
+    {
+        opacity: 0,
+        y: 12,
+        scale: 0.98
+    },
+    {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.35,
+        ease: "power3.out"
+    }
+);
+
+setTimeout(() => {
+    gsap.to(copyNotification, {
+        opacity: 0,
+        y: 10,
+        scale: 0.98,
+        duration: 0.25,
+        ease: "power2.in",
+        onComplete: () => {
+            copyNotification.classList.remove("show");
+        }
+    });
+}, 2200);
 });
 
 /* ================================================================

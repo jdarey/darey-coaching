@@ -2142,34 +2142,63 @@ html.lenis body {
     right: 24px;
     bottom: 84px;
     z-index: 1000;
-
     width: 460px;
     max-height: 640px;
-
     border-radius: 22px;
     border: 1px solid rgba(255,255,255,0.10);
-
-    background:
-        radial-gradient(circle at 50% 0%, rgba(255,255,255,0.055), transparent 38%),
-        rgba(8,8,8,0.96);
-
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-
-    overflow: hidden;
-
+    background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.055), transparent 38%), rgba(8,8,8,0.85); /* zachowanie oryginalnego tła */
+    
+    /* NAPRAWA SCROLLA: */
     display: flex;
     flex-direction: column;
+    overflow: hidden; /* zapobiega wychodzeniu elementów za zaokrąglone rogi panelu */
+}
 
-    transform: translateY(18px) scale(0.96);
-    opacity: 0;
-    pointer-events: none;
+/* Wewnętrzny kontener na opinie (zazwyczaj div o ID/klasie admin-body lub opakowanie listy) */
+/* Kontener z opiniami w panelu admina */
+#adminBody, .admin-body {
+    flex: 1;
+    overflow-y: auto !important;
+    padding-right: 6px; /* Przestrzeń, żeby tekst nie dotykał scrolla */
+    
+    /* Płynne przewijanie listy */
+    scroll-behavior: smooth;
+    
+    /* Wsparcie dla Firefox (bardzo minimalistyczny scroll) */
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent !important;
+}
 
-    box-shadow:
-        0 40px 120px rgba(0,0,0,0.65),
-        inset 0 1px 0 rgba(255,255,255,0.06);
+/* ==========================================================================
+   NOWOCZESNY I MINIMALISTYCZNY SCROLLBAR (Chrome, Safari, Edge, Opera)
+   ========================================================================== */
 
-    transition: all 0.34s cubic-bezier(0.2,0.9,0.2,1);
+/* 1. Szerokość całego paska scrolla */
+#adminBody::-webkit-scrollbar {
+    display: block !important;
+    width: 5px; /* Bardzo cienki i dyskretny */
+}
+
+/* 2. Tło paska (ukryte/transparentne, żeby nie szpeciło panelu) */
+#adminBody::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+/* 3. Wygląd "suwaka" (ruchomego elementu) */
+#adminBody::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.12) !important; /* Bardzo delikatny biały, półprzezroczysty */
+    border-radius: 20px !important; /* Maksymalnie zaokrąglony */
+    transition: background 0.2s ease;
+}
+
+/* 4. Wygląd suwaka po najechaniu myszką (rozjaśnia się) */
+#adminBody::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3) !important; /* Wyraźniejszy przy interakcji */
+}
+
+/* 5. Wygląd suwaka podczas przeciągania kliknięciem */
+#adminBody::-webkit-scrollbar-thumb:active {
+    background: rgba(255, 255, 255, 0.5) !important;
 }
 
 .admin-panel.open {
@@ -3206,7 +3235,7 @@ html.lenis body {
     <i class="fa-solid fa-lock"></i>
 </button>
 
-<div class="admin-panel" id="adminPanel">
+<div class="admin-panel" id="adminPanel" data-lenis-prevent>
     <div class="admin-password-overlay" id="adminPasswordOverlay">
         <div class="admin-lock-icon">
             <i class="fa-solid fa-shield-halved"></i>
@@ -4808,7 +4837,7 @@ discordTag.addEventListener("click", async () => {
         },
         {
             boxShadow: "0 0 20px rgba(255,255,255,0.08)",
-            duration: 0.3,
+            duration: 0.5,
             repeat: 1,
             yoyo: true,
             ease: "power2.out"

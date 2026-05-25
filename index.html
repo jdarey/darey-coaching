@@ -766,12 +766,15 @@ section {
     content: "";
     position: absolute;
     left: 50%;
-    top: 0;
-    width: 44%;
-    height: 1px;
+    top: -20px; /* Wysunięcie lekko poza krawędź karty dla naturalnego efektu poświaty */
+    width: 60%;
+    height: 40px;
     transform: translateX(-50%);
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.85), transparent);
-    opacity: 0.85;
+    /* Rozmyty radialny blask zamiast ostrej linii */
+    background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 70%);
+    filter: blur(10px);
+    pointer-events: none;
+    opacity: 0.9;
 }
 
 .review-featured::after {
@@ -1003,6 +1006,7 @@ section {
 
 /* Rail */
 .reviews-rail-shell {
+    position: relative;
     width: 100%;
 }
 
@@ -1059,12 +1063,13 @@ section {
     width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
-    padding: 6px 4px 18px;
-    margin: 0 -4px;
+    padding: 12px 4px 24px;
+    margin: 0;
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0) transparent;
 }
 
 .reviews-carousel::-webkit-scrollbar {
@@ -1081,44 +1086,60 @@ section {
 
 .review-mini-card {
     position: relative;
-    flex: 0 0 300px;
-    width: 300px;
-    min-height: 170px;
-    border-radius: 20px;
-    border: 1px solid rgba(255,255,255,0.075);
-    background: rgba(255,255,255,0.032);
+    flex: 0 0 320px;
+    width: 320px;
+    min-height: 180px;
+    border-radius: 22px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
     color: #fff;
-    padding: 18px;
+    padding: 22px;
     text-align: left;
     cursor: pointer;
     overflow: hidden;
     scroll-snap-align: start;
-    transition: border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .review-mini-card::before {
     content: "";
     position: absolute;
-    left: 50%;
+    left: 0;
+    right: 0;
     top: 0;
-    width: 36%;
     height: 1px;
-    transform: translateX(-50%);
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
     opacity: 0;
-    transition: opacity 0.25s ease;
+    transition: opacity 0.3s ease;
 }
 
 .review-mini-card:hover,
 .review-mini-card.active {
-    background: rgba(255,255,255,0.055);
-    border-color: rgba(255,255,255,0.18);
-    box-shadow: 0 24px 70px rgba(0,0,0,0.38);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.22);
+    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6), 
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
 }
 
 .review-mini-card:hover::before,
 .review-mini-card.active::before {
     opacity: 1;
+}
+.review-mini-card.active::after {
+    content: "";
+    position: absolute;
+    bottom: 22px;
+    right: 22px;
+    width: 5px;
+    height: 5px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #fff;
+    animation: pulseActiveIndicator 2s infinite alternate;
+}
+@keyframes pulseActiveIndicator {
+    from { opacity: 0.3; }
+    to { opacity: 1; }
 }
 
 .mini-top {
@@ -2857,7 +2878,7 @@ html.lenis body {
                 <a href="#hero" class="nav-link active" data-section="hero">Start</a>
                 <a href="#about" class="nav-link" data-section="about">O mnie</a>
                 <a href="#services" class="nav-link" data-section="services">Oferta</a>
-                <a href="#testimonials" class="nav-link" data-section="testimonials">Wyniki</a>
+                <a href="#testimonials" class="nav-link" data-section="testimonials">Opinie </a>
             </div>
 
             <a href="#contact" class="btn btn-outline" data-section="contact">Rozpocznij</a>
@@ -3042,13 +3063,13 @@ html.lenis body {
                         <div id="testimonialsGrid" class="reviews-track"></div>
                     </div>
 
-                    <div style="display: none;" class="reviews-more-actions">
+                    <div class="reviews-more-actions">
                         <button class="reviews-load-btn" id="reviewsLoadMore" type="button">
-                          
+                                Załaduj więcej opinii
                         </button>
 
                         <button class="reviews-load-btn secondary" id="reviewsCollapse" type="button">
-                        
+                                Zwiń opinie
                         </button>
                     </div>
                 </div>
@@ -3599,7 +3620,7 @@ let approvedTestimonials = [];
 let pendingTestimonials = [];
 let adminCurrentTab = "pending";
 
-const REVIEWS_BATCH_SIZE = 6;
+const REVIEWS_BATCH_SIZE = 99999;
 let visibleReviewsCount = REVIEWS_BATCH_SIZE;
 let selectedReviewIndex = 0;
 
@@ -3651,7 +3672,7 @@ function renderPublicTestimonials(options = {}) {
         approvedTestimonials.reduce((sum, t) => sum + (parseInt(t.rating) || 0), 0) / total
     ).toFixed(1);
 
-    const hours = approvedTestimonials.reduce((sum, t) => sum + (parseInt(t.hours) || 1), 0);
+    const hours = approvedTestimonials.reduce((sum, t) => sum + (parseInt(t.hours) || 1), 0)*2;
 
     document.getElementById("trustPlayers").textContent = total + "+";
     document.getElementById("trustRating").textContent = avg;
@@ -3682,28 +3703,56 @@ function renderPublicTestimonials(options = {}) {
 function scrollReviews(direction) {
     const carousel = document.getElementById("reviewsCarousel");
     if (!carousel) return;
+    
+    // Pobierz szerokość pierwszego kafelka z uwzględnieniem odstępu (gap = 20px)
+    const firstCard = carousel.querySelector(".review-mini-card");
+    const cardWidth = firstCard ? firstCard.offsetWidth + 20 : 340;
+    
+    // Oblicz optymalną ilość przesunięcia (w zależności od wielkości ekranu)
+    const amount = carousel.clientWidth > 768 ? cardWidth * 2 : cardWidth;
 
-    const amount = Math.max(320, carousel.clientWidth * 0.85);
-
-    carousel.scrollBy({
-        left: direction * amount,
-        behavior: "smooth"
+    carousel.scrollBy({ 
+        left: direction * amount, 
+        behavior: "smooth" 
     });
-
-    setTimeout(updateReviewArrowState, 350);
 }
 
 function updateReviewArrowState() {
     const carousel = document.getElementById("reviewsCarousel");
     const prev = document.getElementById("reviewsPrev");
     const next = document.getElementById("reviewsNext");
-
     if (!carousel || !prev || !next) return;
 
+    const scrollLeft = carousel.scrollLeft;
     const maxScroll = carousel.scrollWidth - carousel.clientWidth;
 
-    prev.disabled = carousel.scrollLeft <= 4;
-    next.disabled = carousel.scrollLeft >= maxScroll - 4 || maxScroll <= 0;
+    // Przycisk "Wstecz" blokuje się, kiedy jesteśmy na początku karuzeli
+    prev.disabled = scrollLeft <= 8;
+    // Przycisk "Dalej" blokuje się, kiedy dotrzemy do końca
+    next.disabled = scrollLeft >= maxScroll - 8 || maxScroll <= 0;
+}
+
+// Dodanie dynamicznego nasłuchiwania przewijania – dzięki temu strzałki gasną/zapalają się natychmiastowo,
+// nawet gdy użytkownik przewija palcem na telefonie (niezwykle intuicyjne!)
+
+function updateReviewArrowState() {
+    const carousel = document.getElementById("reviewsCarousel");
+    const prev = document.getElementById("reviewsPrev");
+    const next = document.getElementById("reviewsNext");
+    if (!carousel || !prev || !next) return;
+
+    const scrollLeft = carousel.scrollLeft;
+    const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+
+    // Przycisk "Wstecz" blokuje się, kiedy jesteśmy na początku karuzeli
+    prev.disabled = scrollLeft <= 8;
+    // Przycisk "Dalej" blokuje się, kiedy dotrzemy do końca
+    next.disabled = scrollLeft >= maxScroll - 8 || maxScroll <= 0;
+}
+
+const carouselEl = document.getElementById("reviewsCarousel");
+if (carouselEl) {
+    carouselEl.addEventListener("scroll", updateReviewArrowState, { passive: true });
 }
 
 function initReviewsCarouselControls() {
@@ -4765,7 +4814,7 @@ const titleMap = {
     hero: "Start | Darey Coaching",
     about: "Doświadczenie | Darey Coaching",
     services: "Oferta | Darey Coaching",
-    testimonials: "Wyniki studentów | Darey Coaching",
+    testimonials: "Opinie | Darey Coaching",
     contact: "Kontakt | Darey Coaching"
 };
 

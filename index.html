@@ -42,11 +42,11 @@ html {
     background: #000;
     color: var(--text);
     scroll-behavior: auto;
-    scrollbar-width: 1px;
+    scrollbar-width: 0px;
 }
 
 ::-webkit-scrollbar {
-    display: absolute;
+    display: none;
 
 }
 
@@ -63,31 +63,77 @@ body.loading {
 body::before {
     content: "";
     position: fixed;
-    inset: -260px;
-    pointer-events: none;
+    inset: 0;
     z-index: 0;
-    background:
-        radial-gradient(circle at 50% 0%, rgba(255,255,255,0.075), transparent 34%),
-        radial-gradient(circle at 20% 25%, rgba(255,255,255,0.045), transparent 36%),
-        radial-gradient(circle at 80% 35%, rgba(255,255,255,0.035), transparent 40%),
-        radial-gradient(circle at 50% 90%, rgba(255,255,255,0.025), transparent 42%);
-    filter: blur(100px);
-    animation: backgroundDrift 24s ease-in-out infinite alternate;
-}
+    pointer-events: none;
 
+    background:
+        radial-gradient(
+            circle at 50% -10%,
+            rgba(255,255,255,0.10),
+            transparent 35%
+        ),
+
+        radial-gradient(
+            circle at 80% 20%,
+            rgba(255,255,255,0.04),
+            transparent 25%
+        );
+
+    filter: blur(90px);
+}
+@keyframes cinematicFloat {
+    from {
+        transform: translate3d(0,0,0) scale(1);
+    }
+
+    to {
+        transform: translate3d(30px,-20px,0) scale(1.08);
+    }
+}
 body::after {
     content: "";
     position: fixed;
     inset: 0;
+    z-index: 1;
+    pointer-events: none;
+
+    background:
+        radial-gradient(circle at center,
+        transparent 40%,
+        rgba(0,0,0,0.68) 100%);
+
+    animation: vignettePulse 8s ease-in-out infinite alternate;
+}
+@keyframes vignettePulse {
+    from {
+        opacity: 0.9;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+
+.mouse-light {
+    position: fixed;
+    width: 280px;
+    height: 280px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(circle,
+        rgba(255,255,255,0.045),
+        transparent 70%);
+
     pointer-events: none;
     z-index: 0;
-    background-image:
-        linear-gradient(rgba(255,255,255,0.032) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.032) 1px, transparent 1px);
-    background-size: 72px 72px;
-    mask-image: radial-gradient(circle at center, black 24%, transparent 72%);
-    opacity: 0.11;
-    animation: gridMove 32s linear infinite;
+
+    filter: blur(30px);
+
+    transform: translate(-50%, -50%);
 }
 
 @keyframes backgroundDrift {
@@ -360,20 +406,46 @@ section {
 
 /* Hero */
 .hero {
+    overflow: hidden;
     position: relative;
     padding: 180px 0 100px !important;
 }
+.hero::after {
+    content: "";
+    position: absolute;
 
+    width: 700px;
+    height: 700px;
+
+    left: 50%;
+    top: -200px;
+
+    transform: translateX(-50%);
+
+    background:
+        radial-gradient(circle,
+            rgba(255,255,255,0.10),
+            transparent 60%);
+
+    filter: blur(80px);
+    pointer-events: none;
+}
 .hero::before {
     content: "";
     position: absolute;
-    inset: 0;
+    inset: -10%;
     z-index: -1;
+
     background:
-        radial-gradient(circle at 50% 8%, rgba(255,255,255,0.09), transparent 42%),
-        radial-gradient(circle at 20% 20%, rgba(255,255,255,0.055), transparent 36%),
-        radial-gradient(circle at 80% 30%, rgba(255,255,255,0.035), transparent 42%);
-    filter: blur(60px);
+        radial-gradient(circle at 50% 20%,
+            rgba(255,255,255,0.14),
+            transparent 24%),
+
+        radial-gradient(circle at 50% 0%,
+            rgba(120,120,255,0.10),
+            transparent 35%);
+
+    filter: blur(100px);
 }
 
 .badge {
@@ -1663,18 +1735,20 @@ i[class*="fa-"] {
     bottom: 80px;
     z-index: 1000;
     width: 400px;
-    max-height: 550px;
     border-radius: 18px;
     background: rgba(10,10,10,0.97);
     border: 1px solid rgba(255,255,255,0.1);
     backdrop-filter: blur(20px);
-    overflow: hidden;
-    display: flex;
+    overflow-y: auto; /* <--- Zmiana na overflow-y: auto */
     flex-direction: column;
     transform: translateY(20px) scale(0.95);
     opacity: 0;
     pointer-events: none;
     transition: all 0.3s cubic-bezier(0.2,0.9,0.2,1);
+    scrollbar-width: thin; /* Przywrócenie scrollbara dla Firefox */
+    max-height: 550px;
+    display: flex;
+    overflow: hidden;
 }
 
 .admin-panel.open {
@@ -1737,7 +1811,23 @@ i[class*="fa-"] {
     color: #fff;
     border-bottom-color: #fff;
 }
+#adminBody {
+    max-height: 310px !important; /* Sztywna maksymalna wysokość listy opinii */
+    overflow-y: auto !important;  /* Włączenie pionowego suwaka */
+    overflow-x: hidden !important;
+    position: relative !important;
+    -webkit-overflow-scrolling: touch !important; /* Płynny scroll na telefonach */
+}
 
+/* Wymuszenie widoczności paska w przeglądarkach Chrome/Edge/Safari */
+#adminBody::-webkit-scrollbar {
+    display: block !important;
+    width: 6px !important;
+}
+#adminBody::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.3) !important;
+    border-radius: 10px !important;
+}
 .tab-count {
     display: inline-flex;
     align-items: center;
@@ -2512,7 +2602,18 @@ html.lenis body {
     letter-spacing: 0.5px;
     text-transform: uppercase;
 }
+.noise {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
 
+    opacity: 0.035;
+    mix-blend-mode: soft-light;
+
+    background-image:
+        url("https://grainy-gradients.vercel.app/noise.svg");
+}
 .admin-actions-row {
     display: flex;
     gap: 7px;
@@ -2547,7 +2648,101 @@ html.lenis body {
     border-color: rgba(100,255,100,0.28);
     background: rgba(100,255,100,0.08);
 }
+.aurora {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    z-index: 0;
+    pointer-events: none;
+}
 
+.aurora span {
+    position: absolute;
+    width: 60vw;
+    height: 60vw;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.16;
+    mix-blend-mode: screen;
+    animation: auroraMove 18s infinite alternate ease-in-out;
+}
+
+.aurora span:nth-child(1) {
+    background: #d4d4d4;
+    top: -10%;
+    left: -10%;
+}
+
+.aurora span:nth-child(2) {
+    background: #000000;
+    top: 20%;
+    right: -10%;
+    animation-delay: -6s;
+}
+
+.aurora span:nth-child(3) {
+    background: #000000;
+    bottom: -20%;
+    left: 30%;
+    animation-delay: -12s;
+}
+
+@keyframes auroraMove {
+    0% {
+        transform: translate(0,0) scale(1);
+    }
+
+    100% {
+        transform: translate(80px,-40px) scale(1.2);
+    }
+}
+.cyber-grid {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+
+    background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+
+    background-size: 80px 80px;
+
+    mask-image:
+        radial-gradient(circle at center,
+        black 20%,
+        transparent 80%);
+
+    transform: perspective(1000px) rotateX(75deg) scale(2);
+    transform-origin: top center;
+
+    opacity: 0.15;
+}
+.particles {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+
+    background-image:
+        radial-gradient(white 1px, transparent 1px);
+
+    background-size: 120px 120px;
+
+    opacity: 0.12;
+
+    animation: particlesMove 20s linear infinite;
+}
+
+@keyframes particlesMove {
+    from {
+        transform: translateY(0);
+    }
+
+    to {
+        transform: translateY(120px);
+    }
+}
 .admin-action-btn.reject:hover,
 .admin-action-btn.delete:hover {
     color: #ff6b6b;
@@ -2581,11 +2776,70 @@ html.lenis body {
         scroll-behavior: auto !important;
     }
 }
+.light-sweep {
+    position: fixed;
+    inset: -20%;
+    z-index: 0;
+    pointer-events: none;
+
+    background:
+        conic-gradient(
+            from 180deg at 50% 50%,
+            transparent 0deg,
+            rgba(255,255,255,0.035) 40deg,
+            transparent 80deg
+        );
+
+    animation: sweepRotate 18s linear infinite;
+
+    filter: blur(80px);
+    opacity: 0.9;
+}
+.grain {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+
+    opacity: 0.03;
+
+    background-image:
+        url("https://grainy-gradients.vercel.app/noise.svg");
+
+    mix-blend-mode: soft-light;
+}
+/* --- NAPRAWA SCROLLOWANIA PANELU ADMINA --- */
+#adminBody {
+    overflow-y: auto !important; /* Włącza pionowe przewijanie listy opinii */
+    flex-grow: 1;
+    scrollbar-width: thin !important; /* Przywraca wąski pasek dla Firefox */
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent !important;
+}
+
+/* Wymuszenie wyświetlania paska przewijania w Chrome/Edge/Safari (nadpisanie globalnego display: none) */
+#adminBody::-webkit-scrollbar {
+    display: block !important;
+    width: 6px !important;
+}
+
+/* Wygląd suwaka (kciuka) scrollbary */
+#adminBody::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    border-radius: 20px !important;
+}
+
+/* Efekt po najechaniu na suwak */
+#adminBody::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.4) !important;
+}
+
 </style>
 </head>
 
 <body class="loading">
-
+    <div class="grain"></div>
+    <div class="light-sweep"></div>
+<div class="noise"></div>
 <div class="loader" id="loader">
     <div class="lux">
         <div class="lux-title">PRIVATE COACHING</div>
@@ -2593,7 +2847,7 @@ html.lenis body {
         <div class="lux-sub">CS2 DAREY COACH</div>
     </div>
 </div>
-
+<div class="cyber-grid"></div>
 <div class="copy-notification" id="copyNotification">
     <i class="fa-brands fa-discord"></i>
     <div>
@@ -2601,9 +2855,14 @@ html.lenis body {
         <div class="copy-notification-subtitle">Discord username został skopiowany</div>
     </div>
 </div>
-
+<div class="particles"></div>
 <div class="blob one"></div>
 <div class="blob two"></div>
+<div class="aurora">
+    <span></span>
+    <span></span>
+    <span></span>
+</div>
 
 <nav class="navbar">
     <div class="container nav-content">
@@ -2955,12 +3214,22 @@ html.lenis body {
         </div>
 
         <input 
-            class="form-input" 
-            type="password" 
-            id="adminPassword" 
-            placeholder="Wpisz hasło..." 
-            style="max-width:220px; text-align:center;"
-        >
+    class="form-input" 
+    type="email" 
+    id="adminEmail" 
+    placeholder="Email"
+    style="max-width:220px; text-align:center;"
+    autocomplete="email"
+>
+
+        <input 
+    class="form-input" 
+    type="password" 
+    id="adminPassword" 
+    placeholder="Hasło"
+    style="max-width:220px; text-align:center; margin-top: 12px;"
+    autocomplete="current-password"
+>
 
         <button class="admin-login-btn" id="adminLoginBtn" type="button">
             Zaloguj
@@ -3036,7 +3305,7 @@ html.lenis body {
 <!-- Firebase SDK Compat -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <!-- Lenis + GSAP -->
 <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -3044,6 +3313,15 @@ html.lenis body {
 <script src="https://unpkg.com/split-type"></script>
 
 <script>
+    
+    const light = document.createElement("div");
+light.className = "mouse-light";
+document.body.appendChild(light);
+
+window.addEventListener("mousemove", (e) => {
+    light.style.left = e.clientX + "px";
+    light.style.top = e.clientY + "px";
+});
 /* ================================================================
    FIREBASE CONFIG
 ================================================================ */
@@ -3058,7 +3336,7 @@ const firebaseConfig = {
     measurementId: "G-KY76XQW055"
 };
 
-const ADMIN_PASSWORD = "darey2700";
+
 
 /* ================================================================
    FIREBASE INIT
@@ -3067,19 +3345,32 @@ const ADMIN_PASSWORD = "darey2700";
 let db = null;
 let firebaseReady = false;
 let unsubscribeTestimonials = null;
+let auth = null;
+
+console.log("[Firebase] Firebase SDK dostępny?", typeof firebase !== 'undefined');
 
 try {
+    if (typeof firebase === 'undefined') {
+        throw new Error("Firebase SDK nie załadowany");
+    }
+    
     if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
+        console.log("[Firebase] Aplikacja zainicjalizowana");
     }
 
     db = firebase.firestore();
+    auth = firebase.auth();
+
     firebaseReady = true;
 
-    console.log("[Firebase] Połączono z Firestore");
+    console.log("[Firebase] ✅ Połączono z Firestore i Auth");
 } catch (e) {
-    console.error("[Firebase] Błąd inicjalizacji:", e);
+    console.error("[Firebase] ❌ Błąd inicjalizacji:", e.message);
+    console.warn("[Firebase] Panel admina i opinie mogą nie działać");
 }
+
+let isAdminMode = sessionStorage.getItem("dareyAdminUnlocked") === "1";
 
 /* ================================================================
    HELPERS
@@ -3135,7 +3426,14 @@ function truncateText(text, max = 115) {
 /* ================================================================
    REVIEW RENDER
 ================================================================ */
+const spotlight = document.createElement("div");
+spotlight.classList.add("mouse-spotlight");
+document.body.appendChild(spotlight);
 
+document.addEventListener("mousemove", e => {
+    spotlight.style.left = e.clientX + "px";
+    spotlight.style.top = e.clientY + "px";
+});
 function getReviewData(t) {
     const nickRaw = t.nick || "Gracz";
     const nick = escHTML(nickRaw);
@@ -3316,7 +3614,6 @@ function renderMiniReview(t, index, isActive) {
 let approvedTestimonials = [];
 let pendingTestimonials = [];
 let adminCurrentTab = "pending";
-let isAdminMode = false;
 
 const REVIEWS_BATCH_SIZE = 6;
 let visibleReviewsCount = REVIEWS_BATCH_SIZE;
@@ -3763,7 +4060,25 @@ async function submitTestimonialToFirebase(data) {
         return false;
     }
 }
+// Zapobieganie przewijaniu głównej strony, kiedy kursor myszy jest nad panelem admina
+const adminBodyEl = document.getElementById('adminBody');
+if (adminBodyEl) {
+    adminBodyEl.addEventListener('wheel', function(e) {
+        const scrollTop = this.scrollTop;
+        const scrollHeight = this.scrollHeight;
+        const height = this.clientHeight;
+        const delta = e.deltaY;
 
+        // Jeśli scrollujemy w dół i jesteśmy na końcu, lub w górę i na początku - pozwól na domyślne zachowanie.
+        // W innym wypadku zatrzymaj event, aby główna strona (Lenis) go nie dostała.
+        if ((delta > 0 && scrollTop + height >= scrollHeight) || (delta < 0 && scrollTop <= 0)) {
+            // Opcjonalnie pozwól na scroll tła lub całkowicie zablokuj:
+            e.preventDefault();
+        } else {
+            e.stopPropagation(); // To zatrzymuje ruch głównej strony!
+        }
+    }, { passive: false });
+}
 async function updateTestimonialStatus(id, status) {
     if (!firebaseReady || !db) return false;
 
@@ -3970,6 +4285,7 @@ const adminToggle = document.getElementById("adminToggle");
 const adminPanel = document.getElementById("adminPanel");
 const adminPasswordOverlay = document.getElementById("adminPasswordOverlay");
 const adminPassword = document.getElementById("adminPassword");
+const adminEmail = document.getElementById("adminEmail");
 const adminLoginBtn = document.getElementById("adminLoginBtn");
 const adminLoginError = document.getElementById("adminLoginError");
 const adminCloseBtn = document.getElementById("adminCloseBtn");
@@ -3978,12 +4294,22 @@ const adminRefreshBtn = document.getElementById("adminRefreshBtn");
 const adminSearch = document.getElementById("adminSearch");
 const adminBody = document.getElementById("adminBody");
 
+// Sprawdzenie czy admin panel elementy istnieją
+const adminPanelReady = !!(
+    adminToggle && adminPanel && adminPasswordOverlay && 
+    adminPassword && adminEmail && adminLoginBtn
+);
+
+if (!adminPanelReady) {
+    console.warn("[Admin Panel] Brakuje elementów DOM - admin panel może nie działać");
+}
+
 function unlockAdminPanel() {
     isAdminMode = true;
 
-    adminPasswordOverlay.classList.add("hidden");
-    adminToggle.classList.add("unlocked");
-    adminToggle.innerHTML = '<i class="fa-solid fa-unlock"></i>';
+    if (adminPasswordOverlay) adminPasswordOverlay.classList.add("hidden");
+    if (adminToggle) adminToggle.classList.add("unlocked");
+    if (adminToggle) adminToggle.innerHTML = '<i class="fa-solid fa-unlock"></i>';
 
     sessionStorage.setItem("dareyAdminUnlocked", "1");
 
@@ -3993,78 +4319,157 @@ function unlockAdminPanel() {
 function lockAdminPanel() {
     isAdminMode = false;
 
-    adminPasswordOverlay.classList.remove("hidden");
-    adminToggle.classList.remove("unlocked");
-    adminToggle.innerHTML = '<i class="fa-solid fa-lock"></i>';
+    if (adminPasswordOverlay) adminPasswordOverlay.classList.remove("hidden");
+    if (adminToggle) adminToggle.classList.remove("unlocked");
+    if (adminToggle) adminToggle.innerHTML = '<i class="fa-solid fa-lock"></i>';
 
     sessionStorage.removeItem("dareyAdminUnlocked");
 
     if (adminPassword) adminPassword.value = "";
 }
 
-adminToggle.addEventListener("click", () => {
-    adminPanel.classList.toggle("open");
-});
+if (adminToggle) {
+    adminToggle.addEventListener("click", () => {
+        if (adminPanel) adminPanel.classList.toggle("open");
+    });
+}
 
-adminCloseBtn.addEventListener("click", () => {
-    adminPanel.classList.remove("open");
-});
+if (adminCloseBtn) {
+    adminCloseBtn.addEventListener("click", () => {
+        if (adminPanel) adminPanel.classList.remove("open");
+    });
+}
 
-adminLoginBtn.addEventListener("click", () => {
-    if (adminPassword.value === ADMIN_PASSWORD) {
-        unlockAdminPanel();
-    } else {
-        adminLoginError.style.display = "block";
-        adminPassword.value = "";
+if (adminLoginBtn) {
+    adminLoginBtn.addEventListener("click", async () => {
+        if (!adminEmail || !adminPassword || !adminLoginBtn || !adminLoginError) {
+            console.error("[Admin] Brakuje elementów formularza");
+            return;
+        }
 
-        setTimeout(() => {
+        const email = adminEmail.value.trim();
+        const password = adminPassword.value.trim();
+
+        if (!email || !password) {
+            adminLoginError.textContent = "Uzupełnij dane";
+            adminLoginError.style.display = "block";
+            return;
+        }
+
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            adminLoginError.textContent = "Podaj prawidłowy email";
+            adminLoginError.style.display = "block";
+            return;
+        }
+
+        adminLoginBtn.disabled = true;
+        adminLoginBtn.innerHTML = "Logowanie...";
+
+        try {
+            if (!firebaseReady || !auth) {
+                throw new Error("Firebase nie jest gotowy - " + (firebaseReady ? "brak auth" : "Firebase nie załadował się"));
+            }
+
+            await auth.signInWithEmailAndPassword(email, password);
+
+            unlockAdminPanel();
+
             adminLoginError.style.display = "none";
-        }, 2000);
-    }
-});
 
-adminPassword.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
-        adminLoginBtn.click();
-    }
-});
+        } catch (err) {
+            console.error("[Admin Login Error]", err.code, err.message);
 
-adminLogoutBtn.addEventListener("click", () => {
-    lockAdminPanel();
-});
+            // Lepsze komunikaty błędów
+            let errorMsg = "Błędowy email lub hasło";
+            
+            if (err.code === "auth/invalid-email") {
+                errorMsg = "Nieprawidłowy format email";
+            } else if (err.code === "auth/user-not-found") {
+                errorMsg = "Użytkownik nie znaleziony";
+            } else if (err.code === "auth/wrong-password") {
+                errorMsg = "Błędne hasło";
+            } else if (err.code === "auth/too-many-requests") {
+                errorMsg = "Za wiele nieudanych prób. Spróbuj później";
+            } else if (err.code === "auth/invalid-credential") {
+                errorMsg = "Nieprawidłowe dane uwierzytelniające";
+            } else if (err.message && err.message.includes("Firebase")) {
+                errorMsg = "Błąd połączenia z Firebase. Sprawdź konsolę (F12)";
+            }
+            
+            adminLoginError.textContent = errorMsg;
+            adminLoginError.style.display = "block";
 
-adminRefreshBtn.addEventListener("click", () => {
-    updateAdminPanel();
+            adminPassword.value = "";
+        } finally {
+            adminLoginBtn.disabled = false;
+            adminLoginBtn.innerHTML = "Zaloguj";
+        }
+    });
+}
 
-    if (typeof startFirebaseListener === "function") {
-        startFirebaseListener();
-    }
-});
+if (adminPassword) {
+    adminPassword.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+            if (adminLoginBtn) adminLoginBtn.click();
+        }
+    });
+}
 
-adminSearch.addEventListener("input", (e) => {
-    adminFilterText = e.target.value;
-    updateAdminPanel();
-});
+if (adminLogoutBtn) {
+    adminLogoutBtn.addEventListener("click", async () => {
+        try {
+            if (auth) {
+                await auth.signOut();
+            }
+            lockAdminPanel();
+        } catch (e) {
+            console.error("[Admin Logout Error]", e);
+            lockAdminPanel();
+        }
+    });
+}
 
-document.querySelectorAll(".admin-tab").forEach((tab) => {
-    tab.addEventListener("click", () => {
-        document.querySelectorAll(".admin-tab").forEach((t) => {
-            t.classList.remove("active");
-        });
+if (adminRefreshBtn) {
+    adminRefreshBtn.addEventListener("click", () => {
+        updateAdminPanel();
 
-        tab.classList.add("active");
-        adminCurrentTab = tab.dataset.tab;
+        if (typeof startFirebaseListener === "function") {
+            startFirebaseListener();
+        }
+    });
+}
 
+if (adminSearch) {
+    adminSearch.addEventListener("input", (e) => {
+        adminFilterText = e.target.value;
         updateAdminPanel();
     });
-});
+}
 
-adminBody.addEventListener("click", async (e) => {
-    const btn = e.target.closest("[data-admin-action]");
-    if (!btn) return;
+if (adminPanel) {
+    document.querySelectorAll(".admin-tab").forEach((tab) => {
+        tab.addEventListener("click", () => {
+            document.querySelectorAll(".admin-tab").forEach((t) => {
+                t.classList.remove("active");
+            });
 
-    const action = btn.dataset.adminAction;
-    const index = parseInt(btn.dataset.index);
+            tab.classList.add("active");
+            adminCurrentTab = tab.dataset.tab;
+
+            updateAdminPanel();
+        });
+    });
+}
+
+if (adminBody) {
+    adminBody.addEventListener("click", async (e) => {
+        const btn = e.target.closest("[data-admin-action]");
+        if (!btn) return;
+
+        const action = btn.dataset.adminAction;
+        const index = parseInt(btn.dataset.index);
 
     if (Number.isNaN(index)) return;
 
@@ -4089,10 +4494,17 @@ adminBody.addEventListener("click", async (e) => {
         btn.disabled = false;
         btn.innerHTML = oldText;
     }
-});
+    });
+}
 
-if (sessionStorage.getItem("dareyAdminUnlocked") === "1") {
-    unlockAdminPanel();
+if (auth) {
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            unlockAdminPanel();
+        } else {
+            lockAdminPanel();
+        }
+    });
 }
 /* ================================================================
    PREMIUM 3D + SPOTLIGHT
@@ -4346,7 +4758,7 @@ function playClickSound() {
 
         const now = ctx.currentTime;
 
-        gain.gain.setValueAtTime(0.118, now);
+        gain.gain.setValueAtTime(0.018, now);
         gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.06);
 
         osc.start(now);
@@ -4447,16 +4859,44 @@ window.addEventListener("load", async () => {
     initStaticAnimations();
     initReviewsCarouselControls();
 
+    // Initialize admin panel state
+    if (isAdminMode && adminPasswordOverlay) {
+        adminPasswordOverlay.classList.add("hidden");
+        adminToggle.classList.add("unlocked");
+        adminToggle.innerHTML = '<i class="fa-solid fa-unlock"></i>';
+    }
+
     startFirebaseListener();
 
     await new Promise((resolve) => setTimeout(resolve, 1600));
 
     loader.classList.add("hide");
 
-    loader.addEventListener("transitionend", () => {
-        loader.remove();
-        document.body.classList.remove("loading");
-    });
+    // Fallback - jeśli transitionend się nie zgłosi
+    const removeLoader = () => {
+        try {
+            loader.remove();
+            document.body.classList.remove("loading");
+        } catch (e) {
+            loader.style.display = "none";
+            document.body.classList.remove("loading");
+        }
+    };
+
+    // Primary - czekaj na transitionend
+    const transitionHandler = () => {
+        removeLoader();
+        loader.removeEventListener("transitionend", transitionHandler);
+    };
+    
+    loader.addEventListener("transitionend", transitionHandler, { once: true });
+    
+    // Fallback - jeśli transitionend nie zadziała, usuń po 1.5s
+    setTimeout(() => {
+        if (loader && loader.parentNode) {
+            removeLoader();
+        }
+    }, 1500);
 });
 </script>
 

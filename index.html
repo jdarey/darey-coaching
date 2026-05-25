@@ -1713,7 +1713,7 @@ i[class*="fa-"] {
     height: 44px;
     border-radius: 12px;
     border: 1px solid var(--line);
-    background: rgba(255,255,255,0.045);
+    background: rgba(255, 255, 255, 0);
     color: var(--muted);
     display: flex;
     align-items: center;
@@ -1726,7 +1726,7 @@ i[class*="fa-"] {
 .admin-toggle:hover {
     color: #fff;
     border-color: var(--line-strong);
-    background: rgba(255,255,255,0.075);
+    background: rgba(255, 255, 255, 0);
 }
 
 .admin-panel {
@@ -1736,7 +1736,7 @@ i[class*="fa-"] {
     z-index: 1000;
     width: 400px;
     border-radius: 18px;
-    background: rgba(10,10,10,0.97);
+    background: rgb(10, 10, 10);
     border: 1px solid rgba(255,255,255,0.1);
     backdrop-filter: blur(20px);
     overflow-y: auto; /* <--- Zmiana na overflow-y: auto */
@@ -1777,7 +1777,7 @@ i[class*="fa-"] {
 
 .admin-header {
     padding: 20px 24px;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1811,23 +1811,7 @@ i[class*="fa-"] {
     color: #fff;
     border-bottom-color: #fff;
 }
-#adminBody {
-    max-height: 310px !important; /* Sztywna maksymalna wysokość listy opinii */
-    overflow-y: auto !important;  /* Włączenie pionowego suwaka */
-    overflow-x: hidden !important;
-    position: relative !important;
-    -webkit-overflow-scrolling: touch !important; /* Płynny scroll na telefonach */
-}
 
-/* Wymuszenie widoczności paska w przeglądarkach Chrome/Edge/Safari */
-#adminBody::-webkit-scrollbar {
-    display: block !important;
-    width: 6px !important;
-}
-#adminBody::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.3) !important;
-    border-radius: 10px !important;
-}
 .tab-count {
     display: inline-flex;
     align-items: center;
@@ -2193,7 +2177,7 @@ html.lenis body {
     border-radius: inherit;
     background:
         radial-gradient(circle at 50% 0%, rgba(255,255,255,0.06), transparent 38%),
-        rgba(8,8,8,0.985);
+        rgb(8, 8, 8);
 
     display: flex;
     flex-direction: column;
@@ -2582,7 +2566,30 @@ html.lenis body {
 
     margin-bottom: 12px;
 }
+/* Luksusowy efekt rozświetlenia matowego szkła (Premium White Glow) */
+.discord-tag:focus,
+.discord-tag:active {
+    outline: none !important;
+    /* Rozjaśnienie obramowania do czystej, eleganckiej bieli */
+    border-color: rgba(255, 255, 255, 0.8) !important;
+    /* Subtelne, luksusowe wypełnienie wnętrza */
+    background: rgba(255, 255, 255, 0.08) !important;
+    
+    /* Wielowarstwowa architektura czystego światła */
+    box-shadow: 
+        0 0 0 1px rgba(255, 255, 255, 0.2),                     /* Ultra-cienki pierścień światła */
+        0 8px 30px rgba(255, 255, 255, 0.12),                   /* Miękkie rozlanie pod przyciskiem */
+        0 20px 60px rgba(255, 255, 255, 0.06),                  /* Głęboka aura wtapiająca się w tło */
+        inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;     /* Fizyczny refleks światła na górnej krawędzi szkła */
+        
+    /* Zastosowanie kinowej fizyki przejścia (jak w Apple/iOS) */
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
 
+/* Zapewnienie równie gładkiego powrotu do stanu wyjściowego po kliknięciu */
+.discord-tag {
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
 .admin-pill {
     display: inline-flex;
     align-items: center;
@@ -2755,6 +2762,7 @@ html.lenis body {
     cursor: not-allowed;
 }
 
+
 @media (max-width: 600px) {
     .admin-panel {
         width: calc(100vw - 32px);
@@ -2807,30 +2815,6 @@ html.lenis body {
         url("https://grainy-gradients.vercel.app/noise.svg");
 
     mix-blend-mode: soft-light;
-}
-/* --- NAPRAWA SCROLLOWANIA PANELU ADMINA --- */
-#adminBody {
-    overflow-y: auto !important; /* Włącza pionowe przewijanie listy opinii */
-    flex-grow: 1;
-    scrollbar-width: thin !important; /* Przywraca wąski pasek dla Firefox */
-    scrollbar-color: rgba(255, 255, 255, 0.2) transparent !important;
-}
-
-/* Wymuszenie wyświetlania paska przewijania w Chrome/Edge/Safari (nadpisanie globalnego display: none) */
-#adminBody::-webkit-scrollbar {
-    display: block !important;
-    width: 6px !important;
-}
-
-/* Wygląd suwaka (kciuka) scrollbary */
-#adminBody::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.2) !important;
-    border-radius: 20px !important;
-}
-
-/* Efekt po najechaniu na suwak */
-#adminBody::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(255, 255, 255, 0.4) !important;
 }
 
 </style>
@@ -3058,13 +3042,13 @@ html.lenis body {
                         <div id="testimonialsGrid" class="reviews-track"></div>
                     </div>
 
-                    <div class="reviews-more-actions">
+                    <div style="display: di;" class="reviews-more-actions">
                         <button class="reviews-load-btn" id="reviewsLoadMore" type="button">
-                            Pokaż więcej opinii
+                          
                         </button>
 
                         <button class="reviews-load-btn secondary" id="reviewsCollapse" type="button">
-                            Zwiń listę
+                        
                         </button>
                     </div>
                 </div>
@@ -3667,7 +3651,8 @@ function renderPublicTestimonials(options = {}) {
         approvedTestimonials.reduce((sum, t) => sum + (parseInt(t.rating) || 0), 0) / total
     ).toFixed(1);
 
-const hours = approvedTestimonials.length * 2;
+    const hours = approvedTestimonials.reduce((sum, t) => sum + (parseInt(t.hours) || 1), 0);
+
     document.getElementById("trustPlayers").textContent = total + "+";
     document.getElementById("trustRating").textContent = avg;
     document.getElementById("trustHours").textContent = hours + "+";
@@ -4059,25 +4044,7 @@ async function submitTestimonialToFirebase(data) {
         return false;
     }
 }
-// Zapobieganie przewijaniu głównej strony, kiedy kursor myszy jest nad panelem admina
-const adminBodyEl = document.getElementById('adminBody');
-if (adminBodyEl) {
-    adminBodyEl.addEventListener('wheel', function(e) {
-        const scrollTop = this.scrollTop;
-        const scrollHeight = this.scrollHeight;
-        const height = this.clientHeight;
-        const delta = e.deltaY;
 
-        // Jeśli scrollujemy w dół i jesteśmy na końcu, lub w górę i na początku - pozwól na domyślne zachowanie.
-        // W innym wypadku zatrzymaj event, aby główna strona (Lenis) go nie dostała.
-        if ((delta > 0 && scrollTop + height >= scrollHeight) || (delta < 0 && scrollTop <= 0)) {
-            // Opcjonalnie pozwól na scroll tła lub całkowicie zablokuj:
-            e.preventDefault();
-        } else {
-            e.stopPropagation(); // To zatrzymuje ruch głównej strony!
-        }
-    }, { passive: false });
-}
 async function updateTestimonialStatus(id, status) {
     if (!firebaseReady || !db) return false;
 

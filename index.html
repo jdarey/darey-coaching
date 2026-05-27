@@ -3586,6 +3586,7 @@ function escHTML(value) {
     }[m]));
 }
 
+
 function eloToLvl(elo) {
     elo = Number(elo);
 
@@ -4297,38 +4298,19 @@ function updateAdminPanel() {
                 </div>
 
                 <div class="admin-actions-row">
-                    ${adminCurrentTab === "pending" ? `
-                        <button 
-                            class="admin-action-btn approve" 
-                            type="button"
-                            data-admin-action="approve"
-                            data-index="${realIndex}"
-                        >
-                            <i class="fa-solid fa-check"></i>
-                            Zatwierdź
-                        </button>
-
-                        <button 
-                            class="admin-action-btn reject" 
-                            type="button"
-                            data-admin-action="reject"
-                            data-index="${realIndex}"
-                        >
-                            <i class="fa-solid fa-xmark"></i>
-                            Odrzuć
-                        </button>
-                    ` : `
-                        <button 
-                            class="admin-action-btn delete" 
-                            type="button"
-                            data-admin-action="delete"
-                            data-index="${realIndex}"
-                        >
-                            <i class="fa-solid fa-trash"></i>
-                            Usuń
-                        </button>
-                    `}
-                </div>
+    ${adminCurrentTab === "pending" ? `
+        <button class="admin-action-btn approve" type="button" onclick="approveTestimonial('${t.id}', '${escHTML(nick)}')" >
+            <i class="fa-solid fa-check"></i> Zatwierdź
+        </button>
+        <button class="admin-action-btn reject" type="button" onclick="rejectTestimonial('${t.id}', '${escHTML(nick)}')" >
+            <i class="fa-solid fa-xmark"></i> Odrzuć
+        </button>
+    ` : `
+        <button class="admin-action-btn delete" type="button" onclick="deleteApprovedTestimonial('${t.id}', '${escHTML(nick)}')" >
+            <i class="fa-solid fa-trash"></i> Usuń
+        </button>
+    `}
+</div>
             </div>
         `;
     });
@@ -4494,41 +4476,39 @@ window.deleteApprovedTestimonial = async function(index) {
     }
 };
 
-window.rejectTestimonial = async function(index) {
-    const item = pendingTestimonials[index];
-    if (!item) return;
 
-    if (item.id && firebaseReady) {
-        const ok = await deleteTestimonialFromFirebase(item.id);
-        if (!ok) return;
+
+window.approveTestimonial = async function(docId, studentNick) {
+    if (!docId) return;
+    if (confirm(`⚠️ Czy na pewno zatwierdzić opinię od ${studentNick}?`)) {
+        const ok = await updateTestimonialStatus(docId, "approved");
+        if (ok) {
+            await logAudit('approve_testimonial', { id: docId, nick: studentNick });
+            showToast(`✓ Zatwierdzono: ${studentNick}`, 'success');
+        }
     }
-
-    pendingTestimonials.splice(index, 1);
-
-    renderPublicTestimonials();
-    updateAdminPanel();
 };
 
-window.deleteApprovedTestimonial = async function(index) {
-    const item = approvedTestimonials[index];
-    if (!item) return;
-
-    const confirmed = confirm("Na pewno usunąć tę opinię?");
-    if (!confirmed) return;
-
-    if (item.id && firebaseReady) {
-        const ok = await deleteTestimonialFromFirebase(item.id);
-        if (!ok) return;
+window.rejectTestimonial = async function(docId, studentNick) {
+    if (!docId) return;
+    if (confirm(`⚠️ Czy na pewno ODRZUCIĆ opinię od ${studentNick}?`)) {
+        const ok = await deleteTestimonialFromFirebase(docId);
+        if (ok) {
+            await logAudit('reject_testimonial', { id: docId, nick: studentNick });
+            showToast('🗑️ Odrzucono opinię', 'error');
+        }
     }
+};
 
-    approvedTestimonials.splice(index, 1);
-
-    if (selectedReviewIndex >= approvedTestimonials.length) {
-        selectedReviewIndex = 0;
+window.deleteApprovedTestimonial = async function(docId, studentNick) {
+    if (!docId) return;
+    if (confirm(`⚠️ NA PEWNO usunąć zatwierdzoną opinię od ${studentNick}?`)) {
+        const ok = await deleteTestimonialFromFirebase(docId);
+        if (ok) {
+            await logAudit('delete_testimonial', { id: docId, nick: studentNick });
+            showToast('🗑️ Usunięto z bazy', 'error');
+        }
     }
-
-    renderPublicTestimonials();
-    updateAdminPanel();
 };
 /* ================================================================
    FORM

@@ -3117,7 +3117,7 @@ input[type=number] {
     <!-- HERO -->
     <section id="hero" class="hero">
         <div class="container">
-            <div class="badge">Zapisz sie teraz</div>
+            <div class="badge">Zapisz się teraz</div>
 
             <h1 class="hero-title">
                 Analiza gry<br>
@@ -3148,7 +3148,7 @@ input[type=number] {
 
                 <div class="bento-card card-spotlight">
                     <div class="card-content">
-                        <span class="stat-value">2700</span>
+                        <div class="stat-value" id="faceit-elo">2700</div>
                         <span class="stat-label">Faceit ELO</span>
                     </div>
                 </div>
@@ -3674,7 +3674,35 @@ function getReviewData(t) {
     sessions
 };
 }
+/* ================================================================
+   DYNAMICZNE POBIERANIE ELO FACEIT (BEZPIECZNA WERSJA)
+================================================================ */
+document.addEventListener("DOMContentLoaded", function () {
+    const eloElement = document.getElementById("faceit-elo");
+    
+    if (eloElement) {
+        // Używamy ultra-stabilnego API b7.pl stworzonego dla społeczności CS
+        const url = "https://api.b7.pl/faceit/elo/jdareyy";
 
+        fetch(url)
+            .then(response => {
+                if (!response.ok) throw new Error("API nie odpowiada");
+                return response.text();
+            })
+            .then(data => {
+                const elo = data.trim();
+                // Sprawdzamy czy API zwróciło poprawną cyfrę (np. "2650")
+                if (!isNaN(elo) && elo.length > 0) {
+                    eloElement.innerText = elo;
+                    console.log("[FACEIT] Pomyślnie zaktualizowano ELO:", elo);
+                }
+            })
+            .catch(error => {
+                // Jeśli odpalasz plik z dysku (CORS) lub API padnie, zachowujemy domyślną wartość tekstową z HTML zamiast napisu "Brak danych"
+                console.warn("[FACEIT] Tryb lokalny (file://) lub błąd API. Pozostawiono domyślne ELO. Szczegóły:", error.message);
+            });
+    }
+});
 function renderFeaturedReview(t) {
     const r = getReviewData(t);
 
@@ -3688,17 +3716,19 @@ function renderFeaturedReview(t) {
             <div class="featured-metric">
                 <span>Aktualnie</span>
                 <strong>${r.end} ELO</strong>
-            </div>
+            </div> 
+            
+            <div class="featured-metric">
+                <span>Ilość sesji</span>
+                <strong>${r.sessions}</strong>
+</div>
 
             <div class="featured-metric">
                 <span>Różnica</span>
                 <strong>${r.gainText}</strong>
             </div>
 
-            <div class="featured-metric">
-                <span>Sesje</span>
-                <strong>${r.sessions}</strong>
-</div>
+           
 
         </div>
 

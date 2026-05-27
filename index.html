@@ -3163,7 +3163,7 @@ input[type=number] {
                 <a href="https://www.faceit.com/pl/players/jdareyy" target="_blank" class="bento-card card-spotlight link-card col-span-2">
                     <div class="card-content" style="display:flex;justify-content:space-between;align-items:center;width:100%;">
                         <span style="font-size:1.2rem;display:flex;align-items:center;gap:10px;">
-                            <i class="fa-solid fa-gamepad"></i> Faceit Profil
+                            <img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/faceit.svg" alt="Faceit" style="width:20px; filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(0deg);">Faceit Profil
                         </span>
                         <span class="arrow-up">↗</span>
                     </div>
@@ -5400,47 +5400,42 @@ if (adminPanel) {
     adminPanel.addEventListener("scroll", resetStealthTimer);
 }
 
-
 /* ================================================================
-   BEZPOŚREDNIE POBIERANIE ELO Z FACEIT (BEZ FIREBASE I LOGOWANIA)
+   POBIERANIE ELO Z TWÓJ_LINK (DARMOWE PROXY BEZ BLOKAD)
 ================================================================ */
 document.addEventListener("DOMContentLoaded", function () {
     const eloElement = document.getElementById("faceit-elo");
-    
-    // Twój nick na FACEIT
-    const faceitNickname = "jdareyy"; 
 
     if (eloElement) {
-        // Używamy oficjalnego, publicznego proxy od samego FACEIT
-        const url = `https://proxy.faceit.com/streamer-overlay/v1/overlay/player/${faceitNickname}`;
+        // Link API, który podałeś
+        const faceitApiUrl = "https://www.faceit.com/api/users/v1/nicknames/jdareyy";
+        
+        // Przepuszczamy go przez stabilne, darmowe proxy, które omija ograniczenia CORS na GitHubie
+        const secureProxyUrl = `https://corsproxy.io/?${encodeURIComponent(faceitApiUrl)}`;
 
-        fetch(url)
+        fetch(secureProxyUrl)
             .then(res => {
-                if (!res.ok) throw new Error("Problem z połączeniem z FACEIT");
+                if (!res.ok) throw new Error("Błąd odpowiedzi serwera proxy");
                 return res.json();
             })
             .then(data => {
-                // Widget mxgic1337 wyciąga ELO dokładnie stąd: data.payload.elo
-                if (data && data.payload && data.payload.elo !== undefined) {
-                    const aktualneElo = data.payload.elo;
+                // Oficjalne API Faceit trzyma ELO w ścieżce: data.payload.games.cs2.faceit_elo
+                if (data && data.payload && data.payload.games && data.payload.games.cs2 && data.payload.games.cs2.faceit_elo !== undefined) {
+                    const aktualneElo = data.payload.games.cs2.faceit_elo;
                     
-                    // Podmieniamy tekst na stronie na Twoje prawdziwe, aktualne ELO
+                    // Podmieniamy statystykę w Twoim boksie Bento na dynamiczną liczbę
                     eloElement.innerText = aktualneElo;
-                    console.log("[FACEIT Live] Pomyślnie pobrano aktualne ELO:", aktualneElo);
+                    console.log("[FACEIT API] Pobrano aktualne ELO:", aktualneElo);
                 } else {
-                    console.warn("[FACEIT] Nie znaleziono danych ELO w odpowiedzi profilu.");
+                    console.warn("[FACEIT API] Połączono, ale nie znaleziono statystyk ELO dla gry CS2.");
                 }
             })
             .catch(err => {
-                console.error("[FACEIT Błąd]:", err.message);
-                // W razie problemów (np. gdyby serwery FACEIT padły), strona pokaże np. kreskę zamiast błędu
-                if(eloElement.innerText === "" || eloElement.innerText === "0") {
-                    eloElement.innerText = "---";
-                }
+                console.error("[FACEIT API Błąd]:", err.message);
+                // W razie problemów z siecią (np. u widza) strona bezpiecznie zostawi bazowe "2500+"
             });
     }
 });
-
 </script>
 
 </body>

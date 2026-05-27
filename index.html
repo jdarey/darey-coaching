@@ -3705,44 +3705,45 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 /* ================================================================
-   DYNAMICZNE POBIERANIE ELO FACEIT (WERSJA DLA GITHUB PAGES)
+   DYNAMICZNE POBIERANIE ELO FACEIT (BEZPOŚREDNIO Z FACEIT)
 ================================================================ */
 document.addEventListener("DOMContentLoaded", function () {
     const eloElement = document.getElementById("faceit-elo");
     
     if (eloElement) {
-        // Używamy alternatywnego, otwartego API dla streamerów, które nie blokuje CORS na serwerach produkcyjnych
-        const url = "https://public-api.tracker.gg/v2/csgo/standard/profile/faceit/jdareyy"; 
-        
-        // Ponieważ powyższe API wymaga klucza, użyjemy sprawdzonego i w pełni otwartego API od bstryczn (często używanego na GitHubie)
-        // Link poniżej korzysta z tzw. proxy ułatwiającego pobieranie danych na GitHub Pages:
-        const openUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent("https://api.b7.pl/faceit/elo/jdareyy");
+        // Oficjalny endpoint widgetu overlay dla Twojego profilu jdareyy
+        const url = "https://apps.faceit.com/streamer-overlay/v1/overlay/player/jdareyy";
 
-        fetch(openUrl)
+        fetch(url)
             .then(response => {
-                if (!response.ok) throw new Error("Błąd sieci przy pobieraniu przez proxy");
-                return response.json(); // allorigins zwraca obiekt JSON z zawartością strony w polu 'contents'
+                if (!response.ok) throw new Error("FACEIT App nie odpowiada");
+                return response.json();
             })
             .then(data => {
-                const elo = data.contents.trim();
-                
-                // Sprawdzamy czy pobrana wartość to poprawna cyfra ELO
-                if (!isNaN(elo) && elo.length > 0) {
+                // Sprawdzamy strukturę danych z oficjalnego widgetu FACEIT
+                if (data && data.payload && data.payload.elo) {
+                    const elo = data.payload.elo;
                     eloElement.innerText = elo;
-                    console.log("[FACEIT] ELO zaktualizowane pomyślnie na GitHub Pages:", elo);
-                } else {
-                    console.error("[FACEIT] API zwróciło nieoczekiwaną treść:", data.contents);
+                    console.log("[FACEIT] Pomyślnie pobrano ELO bezpośrednio z FACEIT:", elo);
+                } else if (data && data.elo) {
+                    eloElement.innerText = data.elo;
                 }
             })
             .catch(error => {
-                console.warn("[FACEIT] Nie udało się pobrać danych. Pozostawiono domyślne ELO. Błąd:", error.message);
+                // Szybki fallback do HTTPS b7 (wymuszone S, żeby nie było błędu Mixed Content)
+                console.warn("[FACEIT] Główny serwer zablokowany, próba zapasowa HTTPS...");
                 
-                // KOŁO RATUNKOWE: Jeśli proxy allorigins ma opóźnienie, próbujemy bezpośrednio z zapasowego źródła:
-                fetch("https://api.v9.gg/faceit/elo/jdareyy")
+                fetch("https://api.b7.pl/faceit/elo/jdareyy")
                     .then(res => res.text())
                     .then(text => {
-                        if(!isNaN(text.trim())) eloElement.innerText = text.trim();
-                    }).catch(() => {});
+                        const zapasoweElo = text.trim();
+                        if (!isNaN(zapasoweElo) && zapasoweElo.length > 0) {
+                            eloElement.innerText = zapasoweElo;
+                        }
+                    })
+                    .catch(() => {
+                        console.log("[FACEIT] Pozostawiono domyślne ELO z kodu HTML.");
+                    });
             });
     }
 });

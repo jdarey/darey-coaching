@@ -3705,45 +3705,33 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 /* ================================================================
-   DYNAMICZNE POBIERANIE ELO FACEIT (BEZPOŚREDNIO Z FACEIT)
+   OFICJALNE API WIDGETU FACEIT (100% LIVE & STABLE)
 ================================================================ */
 document.addEventListener("DOMContentLoaded", function () {
     const eloElement = document.getElementById("faceit-elo");
     
     if (eloElement) {
-        // Oficjalny endpoint widgetu overlay dla Twojego profilu jdareyy
+        // Oficjalny i działający endpoint dla widgetów overlay (czysty JSON)
         const url = "https://apps.faceit.com/streamer-overlay/v1/overlay/player/jdareyy";
 
         fetch(url)
             .then(response => {
-                if (!response.ok) throw new Error("FACEIT App nie odpowiada");
+                if (!response.ok) throw new Error("Błąd odpowiedzi serwera FACEIT");
                 return response.json();
             })
             .then(data => {
-                // Sprawdzamy strukturę danych z oficjalnego widgetu FACEIT
+                // Sprawdzamy czy struktura JSON zawiera pole ELO
                 if (data && data.payload && data.payload.elo) {
                     const elo = data.payload.elo;
                     eloElement.innerText = elo;
-                    console.log("[FACEIT] Pomyślnie pobrano ELO bezpośrednio z FACEIT:", elo);
-                } else if (data && data.elo) {
-                    eloElement.innerText = data.elo;
+                    console.log("[FACEIT] Pobrano oficjalne ELO:", elo);
+                } else {
+                    console.warn("[FACEIT] Nie znaleziono ELO w strukturze danych.");
                 }
             })
             .catch(error => {
-                // Szybki fallback do HTTPS b7 (wymuszone S, żeby nie było błędu Mixed Content)
-                console.warn("[FACEIT] Główny serwer zablokowany, próba zapasowa HTTPS...");
-                
-                fetch("https://api.b7.pl/faceit/elo/jdareyy")
-                    .then(res => res.text())
-                    .then(text => {
-                        const zapasoweElo = text.trim();
-                        if (!isNaN(zapasoweElo) && zapasoweElo.length > 0) {
-                            eloElement.innerText = zapasoweElo;
-                        }
-                    })
-                    .catch(() => {
-                        console.log("[FACEIT] Pozostawiono domyślne ELO z kodu HTML.");
-                    });
+                console.error("[FACEIT] Oficjalne API niedostępne:", error.message);
+                // W razie awarii zostaje domyślna wartość wpisana sztywno w HTML
             });
     }
 });

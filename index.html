@@ -3704,35 +3704,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-/* ================================================================
-   SYNCHRONIZACJA ELO FACEIT Z BAZY FIRESTORE
-================================================================ */
-// Sprawdzamy, pod jaką nazwą Twój kod przechowuje instancję bazy danych.
-// Najczęściej jest to po prostu 'db' lub 'firestore'.
-const firestoreDb = typeof db !== 'undefined' ? db : (typeof firestore !== 'undefined' ? firestore : null);
 
-if (firestoreDb && document.getElementById("faceit-elo")) {
-    const eloElement = document.getElementById("faceit-elo");
-
-    // Słuchacz czasu rzeczywistego - automatycznie odświeży stronę, gdy zmienisz ELO w Firebase
-    firestoreDb.collection("stats").doc("faceit")
-        .onSnapshot((doc) => {
-            if (doc.exists) {
-                const data = doc.data();
-                if (data && data.elo !== undefined) {
-                    // Wstrzykujemy ELO bezpośrednio do elementu na stronie
-                    eloElement.innerText = data.elo;
-                    console.log("[Firebase] Pomyślnie zaktualizowano ELO z bazy danych:", data.elo);
-                }
-            } else {
-                console.warn("[Firebase] Dokument 'stats/faceit' nie istnieje w bazie.");
-            }
-        }, (error) => {
-            console.error("[Firebase] Błąd odczytu danych ELO:", error);
-        });
-} else {
-    console.error("[Firebase] Nie można uruchomić skryptu ELO. Sprawdź czy zmienna 'db' lub 'firestore' jest zainicjalizowana.");
-}
 
 function renderFeaturedReview(t) {
     const r = getReviewData(t);
@@ -5429,7 +5401,45 @@ if (adminPanel) {
 }
 
 
+/* ================================================================
+   BEZPOŚREDNIE POBIERANIE ELO Z FACEIT (BEZ FIREBASE I LOGOWANIA)
+================================================================ */
+document.addEventListener("DOMContentLoaded", function () {
+    const eloElement = document.getElementById("faceit-elo");
+    
+    // Twój nick na FACEIT
+    const faceitNickname = "jdareyy"; 
 
+    if (eloElement) {
+        // Używamy oficjalnego, publicznego proxy od samego FACEIT
+        const url = `https://proxy.faceit.com/streamer-overlay/v1/overlay/player/${faceitNickname}`;
+
+        fetch(url)
+            .then(res => {
+                if (!res.ok) throw new Error("Problem z połączeniem z FACEIT");
+                return res.json();
+            })
+            .then(data => {
+                // Widget mxgic1337 wyciąga ELO dokładnie stąd: data.payload.elo
+                if (data && data.payload && data.payload.elo !== undefined) {
+                    const aktualneElo = data.payload.elo;
+                    
+                    // Podmieniamy tekst na stronie na Twoje prawdziwe, aktualne ELO
+                    eloElement.innerText = aktualneElo;
+                    console.log("[FACEIT Live] Pomyślnie pobrano aktualne ELO:", aktualneElo);
+                } else {
+                    console.warn("[FACEIT] Nie znaleziono danych ELO w odpowiedzi profilu.");
+                }
+            })
+            .catch(err => {
+                console.error("[FACEIT Błąd]:", err.message);
+                // W razie problemów (np. gdyby serwery FACEIT padły), strona pokaże np. kreskę zamiast błędu
+                if(eloElement.innerText === "" || eloElement.innerText === "0") {
+                    eloElement.innerText = "---";
+                }
+            });
+    }
+});
 
 </script>
 

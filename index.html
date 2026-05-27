@@ -5440,96 +5440,35 @@ if (adminPanel) {
     adminPanel.addEventListener("scroll", resetStealthTimer);
 }
 
-/* ================================================================
-   BŁYSKAWICZNE I BEZPIECZNE POBIERANIE ELO FACEIT (Z CACHEM)
-================================================================ */
-/* ================================================================
-   BŁYSKAWICZNE I STABILNE POBIERANIE ELO FACEIT (Z CACHEM)
-================================================================ */
-document.addEventListener("DOMContentLoaded", function () {
-    fetchFaceitElo();
-});
+async function loadFaceitElo() {
+    try {
+        const res = await fetch("/api/faceit");
+        const data = await res.json();
 
-async function fetchFaceitElo() {
-    // Łapiemy elementy dokładnie po takich klasach i ID, jakie masz w swoim HTML
-    const eloEl = document.getElementById("eloStatusText");
-    const dotEl = document.querySelector(".elo-dot");
-    const statusTextEl = eloEl?.nextElementSibling || document.querySelector(".card-content span.text-neutral-400");
-    const refreshBtn = document.getElementById("eloRefreshBtn");
-    
-    if (!eloEl) return; // Zabezpieczenie: jeśli elementu nie ma, skrypt cicho kończy pracę
+        const cs2 = data.payload?.games?.cs2 || data.payload?.games?.csgo;
 
-    const nickname = "jdareyy";
-    const targetUrl = `https://www.faceit.com/api/users/v1/nicknames/${nickname}`;
-    
-    // Najstabilniejsze i najszybsze proxy
-    const proxies = [
-        `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
-        `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`
-    ];
+        const elo = cs2?.faceit_elo || "—";
 
-    // Funkcja pomocnicza do bezpiecznej aktualizacji wyglądu strony
-    const updateUI = (elo, lvl, isLive) => {
-        if (eloEl) eloEl.textContent = elo;
-        
-        if (statusTextEl && lvl) {
-            statusTextEl.textContent = `LVL ${lvl} • ${isLive ? 'na żywo' : 'z pamięci'}`;
+        const el = document.getElementById("eloStatusText");
+
+        if (el) {
+            el.innerText = elo;
         }
-        
-        if (dotEl) {
-            // Zmieniamy klasy CSS zgodnie z Twoim arkuszem stylów
-            if (isLive) {
-                dotEl.className = "elo-dot"; // Standardowa zielona kropka
-            } else {
-                dotEl.className = "elo-dot animate-pulse"; // Pulsująca pomarańczowa (ładowanie z cache)
-            }
-        }
-        
-        if (refreshBtn && isLive) {
-            refreshBtn.classList.remove("spinning");
-        }
-    };
 
-    // KROK 1: Szybki odczyt z pamięci (0 ms) - użytkownik widzi ELO od razu po wejściu!
-    const cachedElo = localStorage.getItem("faceit_elo_cache");
-    const cachedLvl = localStorage.getItem("faceit_lvl_cache");
+    } catch (e) {
+        console.error("[FACEIT] error", e);
 
-    if (cachedElo) {
-        updateUI(cachedElo, cachedLvl || "10", false);
-    }
-
-    // KROK 2: Pobieranie świeżych danych w tle (niewidoczne dla użytkownika, nie blokuje strony)
-    for (let i = 0; i < proxies.length; i++) {
-        try {
-            const res = await fetch(proxies[i]);
-            if (!res.ok) throw new Error();
-            
-            let data = await res.json();
-            if (data.contents && typeof data.contents === "string") {
-                data = JSON.parse(data.contents);
-            }
-
-            const payload = data.payload || data;
-            const cs2 = payload?.games?.cs2;
-
-            if (cs2 && cs2.faceit_elo) {
-                const elo = parseInt(cs2.faceit_elo);
-                const level = parseInt(cs2.skill_level) || 10;
-
-                // Nadpisujemy cache nowymi danymi z Faceita
-                localStorage.setItem("faceit_elo_cache", elo);
-                localStorage.setItem("faceit_lvl_cache", level);
-
-                // Płynna podmiana na aktualną wartość live
-                updateUI(elo, level, true);
-                return;
-            }
-        } catch (err) {
-            console.log(`[FACEIT] Proxy #${i + 1} zajęte, sprawdzam następne...`);
-            continue; 
-        }
+        const el = document.getElementById("eloStatusText");
+        if (el) el.innerText = "Błąd";
     }
 }
+
+// start
+loadFaceitElo();
+
+// auto refresh co 60s
+setInterval(loadFaceitElo, 60000);
+
 </script>
 
 </body>

@@ -9,7 +9,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Darey. Coaching</title>
-    <meta name="description" content="Ekskluzywny coaching CS2. 2700 ELO. Podnieś swoje umiejętności.">
+    <meta name="description" content="CS2 coaching i analiza demek. Pomagam poprawić decyzje w grze, wygrywać więcej rund i szybciej awansować na FACEIT / Premier.">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1115,6 +1115,9 @@ section {
 
 .review-mini-card:hover,
 .review-mini-card.active {
+    position: relative; /* Wymagane, aby z-index zadziałał */
+    z-index: 10;        /* Wyciąga kartę nad wszystkie inne elementy */
+    
     background: rgba(255, 255, 255, 0.05);
     border-color: rgba(255, 255, 255, 0.22);
     box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6), 
@@ -2804,6 +2807,9 @@ html.lenis body {
     will-change: transform, opacity;
     transform-origin: center;
 }
+.admin-toggle {
+    display: none !important;
+}
 .admin-action-btn.reject:hover,
 .admin-action-btn.delete:hover {
     color: #ff6b6b;
@@ -2926,13 +2932,13 @@ html.lenis body {
             <div class="badge">Ograniczone Miejsca</div>
 
             <h1 class="hero-title">
-                Wyjdź poza<br>
-                <span class="text-gradient">przeciętność.</span>
+                Analiza gry<br>
+                <span class="text-gradient">CS2 Coaching.</span>
             </h1>
 
             <p class="hero-desc">
-                Indywidualny coaching CS2. Prowadzenie przez gracza ESEA Intermediate z 2700 ELO.
-                Czysta wiedza, zero kompromisów, maksymalny profesjonalizm.
+                Prowadzę coachingi dla graczy początkujących i średnio-zaawansowanych, którzy chcą się rozwijać. 
+                Wszystko na bazie mojego doświadczenia.
             </p>
 
             <div class="hero-actions">
@@ -3059,14 +3065,24 @@ html.lenis body {
                 </div>
             </div>
         </div>
+        <!-- Interaktywna miniatura statusu planu -->
+<div style="display: flex; justify-content: center; margin-bottom: 40px; font-family: 'Space Grotesk', sans-serif;">
+    <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 6px; border-radius: 30px; display: inline-flex; align-items: center; gap: 4px; margin-top: 20px;">
+        <span style="background: var(--accent); color: #fff; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 6px 14px; border-radius: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.2);">
+            Cena za 1 Sesje
+        </span>
+        <span style="color: var(--muted); font-size: 0.75rem; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; padding: 6px 14px;">
+            Czas trwania: ~2h
+        </span>
+    </div>
+</div>
     </section>
 
     <!-- TESTIMONIALS -->
     <section id="testimonials" class="premium-dashboard-section">
         <div class="container">
-            <div class="dash-badge">ZWERYFIKOWANE WYNIKI</div>
+            <div class="dash-badge" style="size: 150%;">ZWERYFIKOWANE OPINIE</div>
 
-            <h2 class="dash-title">Opinie </h2>
 
             <div class="reviews-premium-shell" id="reviewsShell" style="display:none;">
                 <div id="featuredReview"></div>
@@ -3150,7 +3166,7 @@ html.lenis body {
                                     <select class="form-select" id="formService" required>
                                         <option value="" disabled selected>Wybierz usługę</option>
                                         <option value="Analiza Dema">Analiza Dema</option>
-                                        <option value="Live Pug 1v1">Live Pug 1v1</option>
+                                        <option value="Live Coaching">Live Coaching</option>
                                         <option value="Team Coaching">Team Coaching</option>
                                     </select>
                                 </div>
@@ -3217,7 +3233,7 @@ html.lenis body {
 
             <div class="discord-tag" id="discordTag">
                 <i class="fa-brands fa-discord"></i>
-                <span>Jdarey</span>
+                <span>DareyCS2</span>
             </div>
         </div>
     </section>
@@ -3422,15 +3438,15 @@ function escHTML(value) {
 function eloToLvl(elo) {
     elo = Number(elo);
 
-    if (elo >= 2001) return "LVL 10";
-    if (elo >= 1901) return "LVL 9";
-    if (elo >= 1801) return "LVL 8";
-    if (elo >= 1701) return "LVL 7";
-    if (elo >= 1601) return "LVL 6";
-    if (elo >= 1501) return "LVL 5";
-    if (elo >= 1401) return "LVL 4";
-    if (elo >= 1301) return "LVL 3";
-    if (elo >= 1201) return "LVL 2";
+    if (elo >= 2001) return `LVL 10 (${elo} ELO)`;
+    if (elo >= 1801) return "LVL 9";
+    if (elo >= 1651) return "LVL 8";
+    if (elo >= 1501) return "LVL 7";
+    if (elo >= 1351) return "LVL 6";
+    if (elo >= 1201) return "LVL 5";
+    if (elo >= 1051) return "LVL 4";
+    if (elo >= 901) return "LVL 3";
+    if (elo >= 751) return "LVL 2";
 
     return "LVL 1";
 }
@@ -3485,9 +3501,7 @@ function getReviewData(t) {
     const autoHighlight = hasElo ? `${gain >= 0 ? "+" : ""}${gain} ELO progresu` : "Zweryfikowany progres";
     const highlight = escHTML(t.highlight || autoHighlight);
 
-    const progressPercent = hasElo
-        ? Math.min(100, Math.max(18, Math.round(Math.abs(gain) / 900 * 100)))
-        : 68;
+    const progressPercent = hasElo ? 100 : 68;
 
     return {
         nickRaw,
@@ -4323,6 +4337,19 @@ function showFormStatus(type, message) {
 /* ================================================================
    ADMIN PANEL
 ================================================================ */
+// 🎹 Klawisz skrótu: Ctrl + Shift + A
+document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.shiftKey && e.code === 'KeyA') {
+        e.preventDefault();
+        if (adminPanel) {
+            adminPanel.classList.toggle('open');
+            // Jeśli panel się otwiera, od razu ustaw focus na pole email
+            if (adminPanel.classList.contains('open') && adminEmail) {
+                setTimeout(() => adminEmail.focus(), 100);
+            }
+        }
+    }
+});
 
 const adminToggle = document.getElementById("adminToggle");
 const adminPanel = document.getElementById("adminPanel");
@@ -4346,6 +4373,8 @@ const adminPanelReady = !!(
 if (!adminPanelReady) {
     console.warn("[Admin Panel] Brakuje elementów DOM - admin panel może nie działać");
 }
+
+
 
 function unlockAdminPanel() {
     isAdminMode = true;
@@ -4811,7 +4840,7 @@ function playClickSound() {
 
 discordTag.addEventListener("click", async () => {
     try {
-        await navigator.clipboard.writeText("Jdarey");
+        await navigator.clipboard.writeText("DareyCS2");
     } catch (e) {}
 
     playClickSound();

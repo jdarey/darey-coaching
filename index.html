@@ -5441,7 +5441,7 @@ if (adminPanel) {
 }
 
 /* ================================================================
-   NIEBLOKOWALNE POBIERANIE ELO FACEIT (PRODUKCJA + LOCALHOST)
+   BŁYSKAWICZNE I BEZPIECZNE POBIERANIE ELO FACEIT (Z CACHEM)
 ================================================================ */
 document.addEventListener("DOMContentLoaded", function () {
     fetchFaceitElo();
@@ -5450,61 +5450,71 @@ document.addEventListener("DOMContentLoaded", function () {
 async function fetchFaceitElo() {
     const eloEl = document.getElementById("eloStatusText");
     const dotEl = document.getElementById("faceitDot");
-    const nickname = "jdareyy";
+    const statusTextEl = document.getElementById("eloStatusSubText") || document.querySelector(".card-content span.text-neutral-400");
+    const refreshBtn = document.getElementById("eloRefreshBtn");
     
-    if (!eloEl) return;
+    if (!eloEl) return; // Zabezpieczenie przed wywaleniem strony
 
-    // Bezpośredni endpoint, który podnosi poprawne dane
+    const nickname = "jdareyy";
     const targetUrl = `https://www.faceit.com/api/users/v1/nicknames/${nickname}`;
     
-    // Lista bezpiecznych, niezależnych serwerów proxy, które nie mają blokady 403 na FACEIT
     const proxies = [
         `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
-        `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`,
-        `https://cors-anywhere.herokuapp.com/${targetUrl}`
+        `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`
     ];
 
+    // KROK 1: Błyskawiczny odczyt z LocalStorage (0 milisekund!)
+    const cachedElo = localStorage.getItem("faceit_elo_cache");
+    const cachedLvl = localStorage.getItem("faceit_lvl_cache");
+
+    const updateUI = (elo, lvl, isLive) => {
+        if (eloEl) eloEl.textContent = elo;
+        if (statusTextEl && lvl) {
+            statusTextEl.textContent = `LVL ${lvl} • ${isLive ? 'na żywo' : 'z pamięci'}`;
+        }
+        if (dotEl) {
+            dotEl.style.backgroundColor = isLive ? "#22c55e" : "#eab308"; // Zielona = live, Żółta = cache
+            if (isLive) dotEl.classList.remove("animate-pulse");
+        }
+        if (refreshBtn && isLive) {
+            refreshBtn.classList.remove("spinning");
+        }
+    };
+
+    // Jeśli użytkownik już u nas był, od razu ładujemy stare ELO, bez czekania na serwery
+    if (cachedElo) {
+        updateUI(cachedElo, cachedLvl, false);
+    }
+
+    // KROK 2: Pobieranie świeżych danych w tle (nie blokuje ładowania strony)
     for (let i = 0; i < proxies.length; i++) {
         try {
-            console.log(`[FACEIT] Próba pobrania przez Proxy #${i + 1}...`);
             const res = await fetch(proxies[i]);
-            if (!res.ok) throw new Error(`Status ${res.status}`);
+            if (!res.ok) throw new Error();
             
             let data = await res.json();
-            
-            // Obsługa opakowania struktury przez AllOrigins
             if (data.contents && typeof data.contents === "string") {
                 data = JSON.parse(data.contents);
             }
 
-            // Nawigacja po oficjalnym obiekcie API FACEIT
             const payload = data.payload || data;
             const cs2 = payload?.games?.cs2;
 
             if (cs2 && cs2.faceit_elo) {
                 const elo = parseInt(cs2.faceit_elo);
-                
-                // Sukces: Aktualizacja UI na Twojej stronie
-                eloEl.textContent = elo;
-                if (dotEl) {
-                    dotEl.style.backgroundColor = "#22c55e"; // Zmiana kropki na zieloną (Live/Success)
-                    dotEl.classList.remove("animate-pulse");
-                }
-                console.log(`[FACEIT] ✅ Sukces! Aktualne ELO to: ${elo}`);
-                return; // Przerywamy pętlę, bo dane zostały pobrane
-            }
-            throw new Error("Brak prawidłowych pól CS2 ELO w strukturze JSON");
-        } catch (err) {
-            console.warn(`[FACEIT] Proxy #${i + 1} zwróciło błąd:`, err.message);
-            // Pętla przejdzie automatycznie do następnego proxy z listy
-        }
-    }
+                const level = parseInt(cs2.skill_level) || 0;
 
-    // Wykonane w przypadku, gdyby absolutnie wszystkie systemy zawiodły
-    eloEl.textContent = "Błąd";
-    if (dotEl) {
-        dotEl.style.backgroundColor = "#ef4444"; // Czerwona kropka awarii
-        dotEl.classList.remove("animate-pulse");
+                // Nadpisujemy pamięć podręczną nowym wynikiem
+                localStorage.setItem("faceit_elo_cache", elo);
+                localStorage.setItem("faceit_lvl_cache", level);
+
+                // Aktualizujemy UI na żywo
+                updateUI(elo, level, true);
+                return;
+            }
+        } catch (err) {
+            continue; // Jeśli jedno proxy muli/ma błąd, natychmiast sprawdza kolejne
+        }
     }
 }
 </script>

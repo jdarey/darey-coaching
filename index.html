@@ -3705,36 +3705,34 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 /* ================================================================
-   OFICJALNE API WIDGETU FACEIT (100% LIVE & STABLE)
+   SYNCHRONIZACJA ELO FACEIT Z BAZY FIRESTORE
 ================================================================ */
-document.addEventListener("DOMContentLoaded", function () {
-    const eloElement = document.getElementById("faceit-elo");
-    
-    if (eloElement) {
-        // Oficjalny i działający endpoint dla widgetów overlay (czysty JSON)
-        const url = "https://apps.faceit.com/streamer-overlay/v1/overlay/player/jdareyy";
+// Sprawdzamy, pod jaką nazwą Twój kod przechowuje instancję bazy danych.
+// Najczęściej jest to po prostu 'db' lub 'firestore'.
+const firestoreDb = typeof db !== 'undefined' ? db : (typeof firestore !== 'undefined' ? firestore : null);
 
-        fetch(url)
-            .then(response => {
-                if (!response.ok) throw new Error("Błąd odpowiedzi serwera FACEIT");
-                return response.json();
-            })
-            .then(data => {
-                // Sprawdzamy czy struktura JSON zawiera pole ELO
-                if (data && data.payload && data.payload.elo) {
-                    const elo = data.payload.elo;
-                    eloElement.innerText = elo;
-                    console.log("[FACEIT] Pobrano oficjalne ELO:", elo);
-                } else {
-                    console.warn("[FACEIT] Nie znaleziono ELO w strukturze danych.");
+if (firestoreDb && document.getElementById("faceit-elo")) {
+    const eloElement = document.getElementById("faceit-elo");
+
+    // Słuchacz czasu rzeczywistego - automatycznie odświeży stronę, gdy zmienisz ELO w Firebase
+    firestoreDb.collection("stats").doc("faceit")
+        .onSnapshot((doc) => {
+            if (doc.exists) {
+                const data = doc.data();
+                if (data && data.elo !== undefined) {
+                    // Wstrzykujemy ELO bezpośrednio do elementu na stronie
+                    eloElement.innerText = data.elo;
+                    console.log("[Firebase] Pomyślnie zaktualizowano ELO z bazy danych:", data.elo);
                 }
-            })
-            .catch(error => {
-                console.error("[FACEIT] Oficjalne API niedostępne:", error.message);
-                // W razie awarii zostaje domyślna wartość wpisana sztywno w HTML
-            });
-    }
-});
+            } else {
+                console.warn("[Firebase] Dokument 'stats/faceit' nie istnieje w bazie.");
+            }
+        }, (error) => {
+            console.error("[Firebase] Błąd odczytu danych ELO:", error);
+        });
+} else {
+    console.error("[Firebase] Nie można uruchomić skryptu ELO. Sprawdź czy zmienna 'db' lub 'firestore' jest zainicjalizowana.");
+}
 
 function renderFeaturedReview(t) {
     const r = getReviewData(t);

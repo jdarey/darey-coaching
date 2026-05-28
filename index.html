@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -874,6 +873,12 @@ section {
     grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
     gap: 44px;
     align-items: stretch;
+    min-height: 580px;
+}
+
+#featuredReview {
+    /* Stała wysokość - zapobiega skakaniu strony przy zmianie opinii */
+    min-height: 620px;
 }
 
 .featured-left,
@@ -902,18 +907,36 @@ section {
 }
 
 .featured-avatar {
-    width: 52px;
-    height: 52px;
-    border-radius: 16px;
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
     display: grid;
     place-items: center;
+    flex-shrink: 0;
     background:
-        radial-gradient(circle at 32% 22%, rgba(255,255,255,0.38), transparent 36%),
-        rgba(255,255,255,0.075);
-    border: 1px solid rgba(255,255,255,0.14);
-    box-shadow: 0 0 28px rgba(255,255,255,0.05);
+        radial-gradient(circle at 30% 20%, rgba(255,255,255,0.45), transparent 50%),
+        rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    box-shadow:
+        0 0 0 4px rgba(255,255,255,0.04),
+        0 8px 24px rgba(0,0,0,0.4),
+        inset 0 1px 0 rgba(255,255,255,0.22);
     font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.05rem;
     font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Shimmer sweep na avatarze przy wejściu */
+.featured-avatar::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 55%);
+    pointer-events: none;
 }
 
 .featured-user h4 {
@@ -930,11 +953,26 @@ section {
 
 .featured-quote {
     color: rgba(255,255,255,0.84);
-    font-size: clamp(1.25rem, 2.2vw, 2.15rem);
-    line-height: 1.38;
-    letter-spacing: -0.6px;
+    font-size: clamp(1.0rem, 1.6vw, 1.3rem);
+    line-height: 1.55;
+    letter-spacing: -0.2px;
     font-weight: 300;
     max-width: 760px;
+    max-height: 380px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.15) transparent;
+    padding-right: 8px;
+}
+.featured-quote::-webkit-scrollbar {
+    width: 3px;
+}
+.featured-quote::-webkit-scrollbar-track {
+    background: transparent;
+}
+.featured-quote::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.18);
+    border-radius: 99px;
 }
 
 .featured-highlight {
@@ -956,7 +994,6 @@ section {
 }
 
 .featured-right {
-    border-left: 1px solid rgba(255,255,255,0.07);
     padding-left: 36px;
     display: flex;
     flex-direction: column;
@@ -1050,6 +1087,22 @@ section {
     font-size: 0.76rem;
 }
 
+/* Premium featured card transitions */
+#featuredReview {
+    min-height: 620px;
+}
+
+.review-featured {
+    transition: box-shadow 0.4s ease;
+}
+
+.review-featured:hover {
+    box-shadow:
+        0 40px 120px rgba(0,0,0,0.62),
+        0 0 0 1px rgba(255,255,255,0.13),
+        inset 0 1px 0 rgba(255,255,255,0.10);
+}
+
 .featured-footer-note {
     color: rgba(255,255,255,0.36);
     font-family: 'Space Grotesk', sans-serif;
@@ -1063,6 +1116,7 @@ section {
 .reviews-rail-shell {
     position: relative;
     width: 100%;
+    overflow: visible;
 }
 
 .reviews-toolbar {
@@ -1117,8 +1171,8 @@ section {
 .reviews-carousel {
     width: 100%;
     overflow-x: auto;
-    overflow-y: hidden;
-    padding: 12px 4px 24px;
+    overflow-y: visible;
+    padding: 16px 4px 28px;
     margin: 0;
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
@@ -1167,19 +1221,39 @@ section {
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
     opacity: 0;
     transition: opacity 0.3s ease;
+    display: none;
 }
 
 .review-mini-card:hover,
 .review-mini-card.active {
     z-index: 10;
-    
-    /* Delikatne uniesienie karty (np. o 4px w górę) lub przeskalowanie */
-    transform: translateY(-4px); 
-    
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.22);
-    box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.7), 
-                inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+    transform: translateY(-4px);
+    background: rgba(255, 255, 255, 0.065);
+    border-color: rgba(255, 255, 255, 0.28);
+    box-shadow:
+        0 20px 50px -10px rgba(0, 0, 0, 0.7),
+        0 0 0 1px rgba(255,255,255,0.10),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.14);
+}
+
+.review-mini-card.active {
+    background: rgba(255, 255, 255, 0.07);
+    box-shadow:
+        0 0 0 1px rgba(255,255,255,0.18),
+        0 8px 32px -8px rgba(0,0,0,0.6),
+        inset 0 1px 0 rgba(255,255,255,0.16);
+}
+
+/* Shimmer sweep na active karcie */
+.review-mini-card.active::before {
+    animation: miniShimmer 3s ease-in-out infinite;
+}
+
+@keyframes miniShimmer {
+    0%   { opacity: 0; transform: translateX(-100%) skewX(-12deg); }
+    30%  { opacity: 1; }
+    60%  { opacity: 0; transform: translateX(200%) skewX(-12deg); }
+    100% { opacity: 0; transform: translateX(200%) skewX(-12deg); }
 }
 
 .review-mini-card:hover::before,
@@ -1189,18 +1263,19 @@ section {
 .review-mini-card.active::after {
     content: "";
     position: absolute;
-    bottom: 22px;
-    right: 22px;
-    width: 5px;
-    height: 5px;
+    top: 14px;
+    right: 14px;
+    width: 6px;
+    height: 6px;
     background: #fff;
     border-radius: 50%;
-    box-shadow: 0 0 10px #fff;
-    animation: pulseActiveIndicator 2s infinite alternate;
+    box-shadow: 0 0 8px rgba(255,255,255,0.9), 0 0 16px rgba(255,255,255,0.4);
+    animation: pulseActiveIndicator 1.8s ease-in-out infinite alternate;
+    z-index: 10;
 }
 @keyframes pulseActiveIndicator {
-    from { opacity: 0.3; }
-    to { opacity: 1; }
+    from { opacity: 0.5; transform: scale(0.85); box-shadow: 0 0 6px rgba(255,255,255,0.6); }
+    to   { opacity: 1;   transform: scale(1.15); box-shadow: 0 0 14px rgba(255,255,255,1), 0 0 28px rgba(255,255,255,0.35); }
 }
 
 .mini-top {
@@ -1277,6 +1352,7 @@ html, body {
     font-weight: 700;
     letter-spacing: 0.7px;
     text-transform: uppercase;
+    padding-right: 0;
 }
 
 .reviews-more-actions {
@@ -4030,6 +4106,94 @@ function renderPublicTestimonials(options = {}) {
     const showingCount = Math.min(visibleReviewsCount, total);
     const itemsToShow = approvedTestimonials.slice(0, showingCount);
 
+    // Przy zmianie opinii (preserveScroll) - animacja premium bez skoku strony
+    if (preserveScroll && featured.querySelector(".review-featured")) {
+        const scrollY = window.scrollY;
+        const card = featured.querySelector(".review-featured");
+
+        // Zablokuj wysokość żeby layout się nie ruszył
+        const h = featured.offsetHeight;
+        featured.style.height = h + "px";
+        featured.style.overflow = "hidden";
+
+        // Animacja wyjścia: fade + slide w górę
+        if (window.gsap) {
+            // Wyjście: fade out + lekki blur w górę
+            gsap.to(card, {
+                opacity: 0,
+                y: -14,
+                scale: 0.97,
+                filter: "blur(4px)",
+                duration: 0.2,
+                ease: "power2.in",
+                onComplete: () => {
+                    window.scrollTo({ top: scrollY, behavior: "instant" });
+                    featured.innerHTML = renderFeaturedReview(approvedTestimonials[selectedReviewIndex]);
+                    window.scrollTo({ top: scrollY, behavior: "instant" });
+
+                    const newCard = featured.querySelector(".review-featured");
+                    featured.style.height = "";
+                    featured.style.overflow = "";
+                    window.scrollTo({ top: scrollY, behavior: "instant" });
+
+                    // Wejście: efekt materializacji z dołu + unblur
+                    gsap.fromTo(newCard,
+                        { opacity: 0, y: 28, scale: 0.972, filter: "blur(8px)" },
+                        {
+                            opacity: 1, y: 0, scale: 1, filter: "blur(0px)",
+                            duration: 0.52,
+                            ease: "power3.out",
+                            clearProps: "filter,scale",
+                            onComplete: () => {
+                                window.scrollTo({ top: scrollY, behavior: "instant" });
+                                initPremium3D();
+                            }
+                        }
+                    );
+
+                    // Avatar + nick wjeżdżają osobno z lekkim opóźnieniem
+                    const avatar = newCard.querySelector(".featured-avatar");
+                    const userInfo = newCard.querySelector(".featured-user");
+                    if (avatar) gsap.fromTo(avatar,
+                        { opacity: 0, scale: 0.7, rotate: -8 },
+                        { opacity: 1, scale: 1, rotate: 0, duration: 0.45, delay: 0.12, ease: "back.out(1.6)" }
+                    );
+                    if (userInfo) gsap.fromTo(userInfo.querySelector("div"),
+                        { opacity: 0, x: -10 },
+                        { opacity: 1, x: 0, duration: 0.35, delay: 0.2, ease: "power2.out" }
+                    );
+                }
+            });
+        } else {
+            featured.innerHTML = renderFeaturedReview(approvedTestimonials[selectedReviewIndex]);
+            featured.style.height = "";
+            featured.style.overflow = "";
+            window.scrollTo({ top: scrollY, behavior: "instant" });
+            initPremium3D();
+        }
+
+        // Zaktualizuj active na mini-kartach z animacją
+        grid.querySelectorAll(".review-mini-card").forEach((card, i) => {
+            const wasActive = card.classList.contains("active");
+            const willBeActive = i === selectedReviewIndex;
+            if (wasActive !== willBeActive) {
+                card.classList.toggle("active", willBeActive);
+                if (willBeActive && window.gsap) {
+                    gsap.fromTo(card, { scale: 0.96 }, { scale: 1, duration: 0.3, ease: "back.out(1.4)" });
+                }
+            }
+        });
+
+        setTimeout(() => {
+            if (carousel) carousel.scrollLeft = oldScroll;
+            updateReviewArrowState();
+            window.scrollTo({ top: scrollY, behavior: "instant" });
+        }, 80);
+
+        return;
+    }
+
+    // Pełny render (pierwsze załadowanie, load more, collapse)
     featured.innerHTML = renderFeaturedReview(approvedTestimonials[selectedReviewIndex]);
 
     let html = "";
@@ -4061,6 +4225,14 @@ const hours = approvedTestimonials.reduce(
 
     initPremium3D();
     animateReviewCards();
+
+    // Zablokuj wysokość kontenera po pierwszym renderze - zapobiega skokom strony przy zmianie opinii
+    setTimeout(() => {
+        if (featured && featured.offsetHeight > 0 && !featured.dataset.heightLocked) {
+            featured.dataset.heightLocked = "1";
+            featured.style.minHeight = featured.offsetHeight + "px";
+        }
+    }, 200);
 
     setTimeout(() => {
         if (preserveScroll && carousel) carousel.scrollLeft = oldScroll;
@@ -4579,28 +4751,53 @@ async function submitTestimonialToFirebase(data) {
 ========================================================= */
 
 async function sendDiscordNotification(review) {
+    // Discord webhook
+    try {
+        await fetch("https://discord.com/api/webhooks/1509331874559037501/20tY7QBr9UmD_XFv_QA3Gqa7rUercZTTCAecLKY325kKJMD_Ip3z0cFOF7Ac-u1z8vnM", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                embeds: [{
+                    title: "🔥 Nowa opinia do moderacji",
+                    color: 0xffffff,
+                    fields: [
+                        { name: "👤 Nick", value: review.nick || "—", inline: true },
+                        { name: "🎯 Usługa", value: review.service || "—", inline: true },
+                        { name: "⭐ Ocena", value: `${review.rating}/5`, inline: true },
+                        { name: "💬 Opinia", value: (review.review || "").slice(0, 1024) }
+                    ],
+                    footer: { text: `ID: ${review.id} • Darey. Coaching` },
+                    timestamp: new Date().toISOString()
+                }]
+            })
+        });
+    } catch(e) {
+        console.error("[Discord] Błąd:", e);
+    }
 
-    await fetch("https://discord.com/api/webhooks/1509331874559037501/20tY7QBr9UmD_XFv_QA3Gqa7rUercZTTCAecLKY325kKJMD_Ip3z0cFOF7Ac-u1z8vnM", {
+    // ntfy push notification
+    try {
+        const stars = "★".repeat(parseInt(review.rating) || 5) + "☆".repeat(5 - (parseInt(review.rating) || 5));
+        const shortReview = (review.review || "").slice(0, 200);
 
-        method: "POST",
+        await fetch("https://ntfy.sh/darey", {
+            method: "POST",
+            headers: {
+                "Title": `Nowa opinia — ${review.nick}`,
+                "Priority": "high",
+                "Tags": "star,bell",
+                "Markdown": "yes",
+                "Actions": `view, Otwórz panel, https://darey.pl/#admin, clear=true`
+            },
+            body: `${stars} ${review.rating}/5
+📦 ${review.service || "—"}
 
-        headers: {
-            "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify({
-
-            content:
-`🔥 NOWA OPINIA
-
-👤 ${review.nick}
-⭐ ${review.rating}/5
-
-💬 ${review.review}
-
-🆔 ${review.id}`
-        })
-    });
+"${shortReview}${review.review && review.review.length > 200 ? "…" : ""}"`
+        });
+        console.log("[ntfy] Powiadomienie wysłane");
+    } catch(e) {
+        console.error("[ntfy] Błąd:", e);
+    }
 }
 
 async function updateTestimonialStatus(id, status) {
@@ -4982,18 +5179,20 @@ function animateReviewCards() {
     if (featured && featured.dataset.animInit !== "1") {
         featured.dataset.animInit = "1";
 
-        gsap.from(featured, {
-            scrollTrigger: {
-                trigger: featured,
-                start: "top 90%",
-                toggleActions: "play none none reverse"
-            },
-            y: 70,
-            opacity: 0,
-            scale: 0.975,
-            duration: 1.1,
-            ease: "power4.out"
-        });
+        gsap.fromTo(featured,
+            { opacity: 0, y: 60, scale: 0.97, filter: "blur(6px)" },
+            {
+                scrollTrigger: {
+                    trigger: featured,
+                    start: "top 88%",
+                    toggleActions: "play none none none"
+                },
+                opacity: 1, y: 0, scale: 1, filter: "blur(0px)",
+                duration: 1.0,
+                ease: "power4.out",
+                clearProps: "filter,scale"
+            }
+        );
     }
 
     gsap.utils.toArray(".review-mini-card").forEach((card, i) => {
@@ -5014,7 +5213,10 @@ function animateReviewCards() {
         });
     });
 
+    // refresh bez skakania - zachowaj pozycję scrolla
+    const _sy = window.scrollY;
     ScrollTrigger.refresh();
+    window.scrollTo({ top: _sy, behavior: "instant" });
 }
 
 /* ================================================================
@@ -5602,47 +5804,7 @@ loadFaceitElo();
 // auto refresh co 60s
 setInterval(loadFaceitElo, 60000);
 
-async function sendDiscordNotification(review) {
-    const webhookURL = "https://discord.com/api/webhooks/1509331874559037501/20tY7QBr9UmD_XFv_QA3Gqa7rUercZTTCAecLKY325kKJMD_Ip3z0cFOF7Ac-u1z8vnM";
 
-    try {
-        await fetch(webhookURL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                content: `🚨 **NOWA OPINIA** 🚨\n\n👤 Nick: ${review.nick}\n🎯 Usługa: ${review.service}\n⭐ Ocena: ${review.rating}/5\n💬 "${review.review}"\n`
-            })
-        });
-
-        console.log("[Discord] Powiadomienie wysłane");
-
-    } catch (e) {
-        console.error("[Discord] Błąd webhooka:", e);
-    }
-}
-// Przykład miejsca w Twoim skrypcie na STRONIE GŁÓWNEJ:
-db.collection("testimonials").add({
-    nick: userNick,
-    review: userReview,
-    service: userService, // np. "HAJLAJT"
-    status: "pending"
-})
-.then(() => {
-    // === TUTAJ DODAJSZ TĘ SEKCJĘ: POWIADOMIENIE PUSH ===
-    fetch('https://ntfy.sh/darey', {
-        method: 'POST',
-        body: `Nowa opinia od: ${userNick} na pakiet: ${userService}! Checknij panel admina.`,
-        headers: {
-            'Title': '🚀 Nowa opinia Darey. Coaching!',
-            'Priority': 'high',
-            'Tags': 'fire,bell'
-        }
-    });
-    
-    alert("Opinia wysłana do moderacji!");
-})
 
 </script>
 

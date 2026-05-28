@@ -66,12 +66,37 @@
             font-family: var(--font);
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            
+            /* UKRYWANIE PASKA (Firefox i IE/Edge) */
+            scrollbar-width: none;  /* Firefox */
+            -ms-overflow-style: none;  /* IE i stare Edge */
         }
 
         body {
             background: var(--bg);
-            overflow-x: hidden;
             min-height: 100vh;
+            
+            /* Zapewnia naturalne przewijanie pionowe, blokuje rozjeżdżanie na boki */
+            overflow-x: hidden;
+            overflow-y: auto; 
+            -webkit-overflow-scrolling: touch; /* Płynne scrollowanie dla iPhone/Safari */
+            
+            /* UKRYWANIE PASKA (Firefox i IE/Edge) */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        /* UKRYWANIE PASKA dla Chrome, Safari, Opera i nowych Edge */
+        html::-webkit-scrollbar,
+        body::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+
+        /* Klasa loading - upewnij się, że nie nadpisuje ważnych stylów na stałe */
+        body.loading {
+            overflow: hidden !important;
         }
 
         body.loading {
@@ -1239,7 +1264,8 @@ section {
     margin-bottom: 16px;
 }
 html, body {
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 .mini-footer {
     display: flex;
@@ -3444,24 +3470,25 @@ input[type=number] {
                                     <label class="form-label">Start ELO opcjonalnie</label>
                                     <input class="form-input" type="number" id="formStartElo" placeholder="np. 1420">
                                 </div>
-                                <div class="form-group">
-    <label class="form-label">Ilość sesji</label>
-    <input 
-        class="form-input" 
-        type="number" 
-        id="formSessions" 
-        placeholder="np. 3"
-        min="1"
-        value="1"
-    >
-</div>
+                                
 
                                 <div class="form-group">
                                     <label class="form-label">Aktualne ELO opcjonalnie</label>
                                     <input class="form-input" type="number" id="formEndElo" placeholder="np. 1950">
                                 </div>
                             </div>
-
+                            
+                            <div class="form-group">
+                                <label class="form-label">Ilość sesji</label>
+                                <input 
+                                    class="form-input" 
+                                    type="number" 
+                                    id="formSessions" 
+                                    placeholder="np. 3"
+                                    min="1"
+                                    value="1"
+                                >
+                            </div>
                             
                             <div class="form-group">
                                 <label class="form-label">Twoja opinia</label>

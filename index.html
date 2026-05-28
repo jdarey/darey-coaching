@@ -1238,7 +1238,9 @@ section {
     overflow: hidden;
     margin-bottom: 16px;
 }
-
+html, body {
+    overflow: hidden;
+}
 .mini-footer {
     display: flex;
     justify-content: space-between;
@@ -3105,6 +3107,50 @@ input[type=number] {
         display: none !important;
     }
 }
+/* CSS ikony Faceit */
+.faceit-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    margin-left: 6px;
+    vertical-align: text-bottom;
+    transition: transform 0.2s ease, filter 0.2s ease;
+    filter: grayscale(1) opacity(0.6);
+}
+.faceit-icon:hover {
+    transform: translateY(-2px) scale(1.1);
+    filter: grayscale(0) opacity(1);
+}
+.faceit-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+.faceit-icon-mini {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    margin-left: 4px;
+    vertical-align: middle;
+    transition: transform 0.2s ease, filter 0.2s ease;
+    filter: grayscale(1) opacity(0.6);
+}
+.faceit-icon-mini:hover {
+    transform: translateY(-1px) scale(1.1);
+    filter: grayscale(0) opacity(1);
+}
+.faceit-icon-mini img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+
+
 </style>
 </head>
 
@@ -3439,6 +3485,12 @@ input[type=number] {
                                 <input class="form-input" type="text" id="formHighlight" placeholder="np. +530 ELO w 3 tygodnie">
                             </div>
 
+                            <div class="form-group">
+                                <label class="form-label">Link do profilu Faceit (opcjonalnie)</label>
+                                <input class="form-input" type="url" id="formFaceitLink" placeholder="np. https://www.faceit.com/en/players/TwójNick">
+                            </div>
+
+
                             <button class="form-submit-btn" type="submit" id="formSubmitBtn">
                                 Wyślij opinię
                             </button>
@@ -3696,6 +3748,7 @@ function getReviewData(t) {
     const progressPercent = hasElo ? 100 : 68;
 
     const sessions = Number(t.sessions) || 1;
+    const faceitLink = t.faceitLink ? escHTML(t.faceitLink) : null;
 
     return {
     nickRaw,
@@ -3711,7 +3764,8 @@ function getReviewData(t) {
     gainText,
     highlight,
     progressPercent,
-    sessions
+    sessions,
+    faceitLink
 };
 }
 /* ================================================================
@@ -3825,7 +3879,7 @@ function renderFeaturedReview(t) {
                         <div class="featured-avatar">${r.initials}</div>
 
                         <div>
-                            <h4>${r.nick}</h4>
+                            <h4>${r.nick} ${r.faceitLink ? `<a href="${r.faceitLink}" target="_blank" class="faceit-icon" title="Zobacz profil Faceit"><img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/faceit.svg" alt="Faceit" style="width:20px; filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(0deg);"></a>` : ''}</h4>
                             <p>${r.service}</p>
                         </div>
                     </div>
@@ -3873,8 +3927,16 @@ function renderMiniReview(t, index, isActive) {
                     <div class="mini-avatar">${r.initials}</div>
 
                     <div style="min-width:0;">
-                        <strong>${r.nick}</strong>
-                        <span>${r.service}</span>
+<strong>
+  ${r.nick}
+  ${r.faceitLink ? `
+    <a href="${r.faceitLink}" target="_blank" class="faceit-icon-mini" title="Zobacz profil Faceit" onclick="event.stopPropagation()">
+      <img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/faceit.svg"
+           alt="Faceit"
+           style="width:16px; filter: invert(100%);">
+    </a>
+  ` : ''}
+</strong>                           <span>${r.service}</span>
                     </div>
                 </div>
 
@@ -4454,22 +4516,64 @@ function startFirebaseListener() {
 }
 
 async function submitTestimonialToFirebase(data) {
+
     if (!firebaseReady || !db) return false;
 
     try {
-        await db.collection("testimonials").add({
+
+        // 🔥 zapis opinii
+        const docRef = await db.collection("testimonials").add({
             ...data,
             status: "pending",
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        console.log("[Firebase] Opinia wysłana do Firestore");      
+        console.log("[Firebase] Opinia wysłana:", docRef.id);
+
+        // 🔥 wysłanie na Discord
+        await sendDiscordNotification({
+            id: docRef.id,
+            ...data
+        });
+
         return true;
+
     } catch (e) {
+
         console.error("[Firebase] Błąd wysyłania:", e);
         return false;
     }
+}
+
+
+/* =========================================================
+   DISCORD WEBHOOK
+========================================================= */
+
+async function sendDiscordNotification(review) {
+
+    await fetch("https://discord.com/api/webhooks/1509331874559037501/20tY7QBr9UmD_XFv_QA3Gqa7rUercZTTCAecLKY325kKJMD_Ip3z0cFOF7Ac-u1z8vnM", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+
+            content:
+`🔥 NOWA OPINIA
+
+👤 ${review.nick}
+⭐ ${review.rating}/5
+
+💬 ${review.review}
+
+🆔 ${review.id}`
+        })
+    });
 }
 
 async function updateTestimonialStatus(id, status) {
@@ -4619,6 +4723,7 @@ testimonialForm.addEventListener("submit", async (e) => {
 
     const ratingVal = rating ? parseInt(rating.value) : 5;
     const highlight = document.getElementById("formHighlight").value.trim();
+    const faceitLink = document.getElementById("formFaceitLink").value.trim();
 
     if (!nick || !service || !review) {
         showFormStatus("error", "Wypełnij wymagane pola.");
@@ -4637,7 +4742,8 @@ testimonialForm.addEventListener("submit", async (e) => {
     rating: ratingVal,
     sessions,
     hours: sessions * 2,
-    highlight
+    highlight,
+    faceitLink
 };
 
     if (firebaseReady) {
@@ -5468,6 +5574,48 @@ loadFaceitElo();
 
 // auto refresh co 60s
 setInterval(loadFaceitElo, 60000);
+
+async function sendDiscordNotification(review) {
+    const webhookURL = "https://discord.com/api/webhooks/1509331874559037501/20tY7QBr9UmD_XFv_QA3Gqa7rUercZTTCAecLKY325kKJMD_Ip3z0cFOF7Ac-u1z8vnM";
+
+    try {
+        await fetch(webhookURL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                content: `🚨 **NOWA OPINIA** 🚨\n\n👤 Nick: ${review.nick}\n🎯 Usługa: ${review.service}\n⭐ Ocena: ${review.rating}/5\n💬 "${review.review}"\n`
+            })
+        });
+
+        console.log("[Discord] Powiadomienie wysłane");
+
+    } catch (e) {
+        console.error("[Discord] Błąd webhooka:", e);
+    }
+}
+// Przykład miejsca w Twoim skrypcie na STRONIE GŁÓWNEJ:
+db.collection("testimonials").add({
+    nick: userNick,
+    review: userReview,
+    service: userService, // np. "HAJLAJT"
+    status: "pending"
+})
+.then(() => {
+    // === TUTAJ DODAJSZ TĘ SEKCJĘ: POWIADOMIENIE PUSH ===
+    fetch('https://ntfy.sh/darey', {
+        method: 'POST',
+        body: `Nowa opinia od: ${userNick} na pakiet: ${userService}! Checknij panel admina.`,
+        headers: {
+            'Title': '🚀 Nowa opinia Darey. Coaching!',
+            'Priority': 'high',
+            'Tags': 'fire,bell'
+        }
+    });
+    
+    alert("Opinia wysłana do moderacji!");
+})
 
 </script>
 
